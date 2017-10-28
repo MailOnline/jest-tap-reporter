@@ -1,4 +1,4 @@
-/* eslint-disable id-match, class-methods-use-this, no-unused-vars, no-console */
+/* eslint-disable id-match */
 const jestResultsToTap = require('./jestResultsToTap');
 
 class TapReporter {
@@ -12,6 +12,7 @@ class TapReporter {
     this._shouldFail = results.numFailedTestSuites > 0 || results.numFailedTests > 0;
     const tapOutput = jestResultsToTap(results);
 
+    // eslint-disable-next-line no-console
     console.log(`\n${tapOutput}`);
   }
 
