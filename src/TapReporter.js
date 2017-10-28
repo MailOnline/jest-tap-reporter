@@ -2,14 +2,14 @@
 const jestResultsToTap = require('./jestResultsToTap');
 
 class TapReporter {
-  constructor (globalConfig, options) {
+  constructor (globalConfig = {}, options = {}) {
     this._globalConfig = globalConfig;
     this._options = options;
     this._shouldFail = false;
   }
 
   onRunComplete (contexts, results) {
-    this._shouldFail = results.numFailedTestSuites > 0 && results.numFailedTests;
+    this._shouldFail = results.numFailedTestSuites > 0 || results.numFailedTests > 0;
     const tapOutput = jestResultsToTap(results);
 
     console.log(`\n${tapOutput}`);
