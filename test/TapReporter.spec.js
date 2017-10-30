@@ -7,6 +7,15 @@ const {
   skippedTestSuite
 } = require('./fixtures');
 
+jest.mock('chalk', () => ({
+  bgGreen: (str) => str,
+  bgRed: (str) => str,
+  green: (str) => str,
+  grey: (str) => str,
+  red: (str) => str,
+  yellow: (str) => str
+}));
+
 let origLog;
 
 const string = {
@@ -229,6 +238,7 @@ test('TapReporter onRunComplete must output the Tap results', () => {
 
   expect(console.log).toHaveBeenCalledWith(`
 # Total tests: 1
+
 # Passed suites: 0
 # Failed suites: 0
 # Passed tests: 0

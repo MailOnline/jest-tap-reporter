@@ -39,5 +39,8 @@
     "reporters": [
       "./"
     ]
+  },
+  "dependencies": {
+    "chalk": "^2.3.0"
   }
 }
