@@ -35,6 +35,9 @@
     "collectCoverageFrom": [
       "src/**/*.js",
       "index.js"
+    ],
+    "reporters": [
+      "./"
     ]
   }
 }
