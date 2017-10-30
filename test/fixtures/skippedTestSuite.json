@@ -1,0 +1,17 @@
+{
+  "testResults":[
+     {
+        "failureMessages":[
+
+        ],
+        "status":"pending",
+        "title":"must log an error if there is a problem processing the results"
+     }
+  ],
+  "endTime":1500479077870,
+  "message":"",
+  "name":"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js",
+  "startTime":1500479077405,
+  "status":"passed",
+  "summary":""
+}

@@ -1,0 +1,17 @@
+{
+  "testResults":[
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must output the plan"
+     }
+  ],
+  "endTime":1500478745877,
+  "message":"",
+  "name":"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js",
+  "startTime":1500478745692,
+  "status":"passed",
+  "summary":""
+}

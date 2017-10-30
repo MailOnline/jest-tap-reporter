@@ -1,0 +1,7 @@
+{
+  "extends": "mailonline",
+  "rules": {
+    "import/unambiguous": "off",
+    "import/no-commonjs": "off"
+  }
+}

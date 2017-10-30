@@ -1,0 +1,59 @@
+{
+  "testResults":[
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must log an error if there is a problem processing the results"
+     },
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must return the passed result obj without modifying it"
+     },
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must output the tap results to a file"
+     },
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must output the plan"
+     },
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must properly output success test lines"
+     },
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must properly output error test lines"
+     },
+     {
+        "failureMessages":[
+
+        ],
+        "status":"passed",
+        "title":"must add the skiped directive to skiped test lines"
+     }
+  ],
+  "endTime":1500478996335,
+  "message":"",
+  "name":"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js",
+  "startTime":1500478996144,
+  "status":"passed",
+  "summary":""
+}
