@@ -1,15 +1,13 @@
-const {
-  failingTestJsonOutput,
-  severalTestsJsonOutputs,
-  singleTestJsonOutput,
-  skippedTestJsonOutput
-} = require('./raw');
+const failingTestSuite = require('./failingTestSuite.json');
+const passingTestSuite = require('./passingTestSuite.json');
+const severalTestsSuite = require('./severalTestsSuite.json');
+const skippedTestSuite = require('./skippedTestSuite.json');
 
 const fixtures = {
-  failingTestResult: JSON.parse(failingTestJsonOutput),
-  severalTestResults: JSON.parse(severalTestsJsonOutputs),
-  singleTestResult: JSON.parse(singleTestJsonOutput),
-  skippedTestResult: JSON.parse(skippedTestJsonOutput)
+  failingTestSuite,
+  passingTestSuite,
+  severalTestsSuite,
+  skippedTestSuite
 };
 
 module.exports = fixtures;

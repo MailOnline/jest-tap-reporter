@@ -5,11 +5,11 @@ class TapReporter {
     this._options = options;
     this._shouldFail = false;
 
-    console.log('\n\nStarting ...');
+    console.log('\n\nStarting ...\n');
   }
 
   onTestResult (contexts, {testResults}) {
-    const text = [''];
+    const text = [];
 
     testResults.forEach((test, idx) => {
       if (test.status === 'passed') {
@@ -38,9 +38,12 @@ class TapReporter {
 
     this._shouldFail = results.numFailedTestSuites > 0 || results.numFailedTests > 0;
 
-    text.push(`# tests ${results.numTotalTests}`);
-    text.push(`# pass ${results.numPassedTests}`);
-    text.push(`# fail ${results.numFailedTests}`);
+    text.push(`# Total tests: ${results.numTotalTests}`);
+    text.push(`# Passed suites: ${results.numPassedTestSuites}`);
+    text.push(`# Failed suites: ${results.numFailedTestSuites}`);
+    text.push(`# Passed tests: ${results.numPassedTests}`);
+    text.push(`# Failed tests: ${results.numFailedTests}`);
+    text.push(`# Skipped tests: ${results.numPendingTests}`);
 
     console.log(`\n${text.join('\n')}`);
   }
