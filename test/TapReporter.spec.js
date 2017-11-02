@@ -30,7 +30,7 @@ const processTestLine = (testLine) => {
   const isSuccess = testLine.indexOf('not') !== 0;
   const status = isSuccess ? parts[0] : `${parts[0]} ${parts[1]}`;
   const testNumber = isSuccess ? parts[1] : parts[2];
-  const hasDirective = testLine.indexOf('# SKIP -') >= 0;
+  const hasDirective = testLine.indexOf('# SKIP') >= 0;
   const descriptionStartIdx = isSuccess ? 2 : 3;
 
   let description;
@@ -169,7 +169,7 @@ test('TapReporter onTestResults must output skipped tests', () => {
   expect(status).toBe('ok');
   expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
-  expect(directive).toBe('# SKIP -');
+  expect(directive).toBe('# SKIP');
   expect(diagnostics).toBeNull();
 });
 

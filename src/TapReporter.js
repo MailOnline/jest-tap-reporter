@@ -29,7 +29,7 @@ class TapReporter {
           text.push(diagnostics);
         }
       } else if (test.status === 'pending') {
-        text.push(`${chalk.yellow('ok')} ${idx + 1} ${test.title} ${chalk.yellow('# SKIP -')}`);
+        text.push(`${chalk.yellow('ok')} ${idx + 1} ${test.title} ${chalk.yellow('# SKIP')}`);
       }
     });
 
