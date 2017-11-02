@@ -1,24 +1,28 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
 const chalk = require('chalk');
 const ms = require('ms');
+const Logger = require('./helpers/Logger');
 
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
+    const {logLevel = 'INFO'} = options;
+
     this._globalConfig = globalConfig;
     this._options = options;
     this._shouldFail = false;
+    this.logger = new Logger({
+      logLevel
+    });
 
-    console.log('\n\nStarting ...\n');
+    this.logger.log('\n\n# Starting ...\n');
   }
 
   onTestResult (contexts, {testResults}) {
-    const text = [];
-
     testResults.forEach((test, idx) => {
       if (test.status === 'passed') {
-        text.push(`${chalk.green('ok')} ${idx + 1} ${test.title}`);
+        this.logger.log(`${chalk.green('ok')} ${idx + 1} ${test.title}`);
       } else if (test.status === 'failed') {
-        text.push(`${chalk.red('not ok')} ${idx + 1} ${test.title}`);
+        this.logger.log(`${chalk.red('not ok')} ${idx + 1} ${test.title}`);
 
         if (test.failureMessages.length > 0) {
           const diagnostics = test.failureMessages
@@ -26,14 +30,12 @@ class TapReporter {
             .map((line) => chalk.grey(`# ${line}`))
             .join('\n');
 
-          text.push(diagnostics);
+          this.logger.error(diagnostics);
         }
       } else if (test.status === 'pending') {
-        text.push(`${chalk.yellow('ok')} ${idx + 1} ${test.title} ${chalk.yellow('# SKIP')}`);
+        this.logger.log(`${chalk.yellow('ok')} ${idx + 1} ${test.title} ${chalk.yellow('# SKIP')}`);
       }
     });
-
-    console.log(text.join('\n'));
   }
 
   onRunComplete (contexts, results) {
@@ -50,25 +52,24 @@ class TapReporter {
     } = results;
     const skippedTestSuites = numPendingTestSuites > 0 ? `${chalk.yellow(`${numPendingTestSuites} skipped`)}, ` : '';
     const skippedTests = numPendingTests > 0 ? `${chalk.yellow(`${numPendingTests} skipped`)}, ` : '';
-    const text = [];
 
     this._shouldFail = numFailedTestSuites > 0 || numFailedTests > 0;
 
+    this.logger.info('\n');
     if (numFailedTestSuites > 0) {
-      text.push(`# testSuites: ${skippedTestSuites}${chalk.red(`${numFailedTestSuites} failed`)}, ${numTotalTestSuites} total`);
+      this.logger.info(`# testSuites: ${skippedTestSuites}${chalk.red(`${numFailedTestSuites} failed`)}, ${numTotalTestSuites} total`);
     } else {
-      text.push(`# testSuites: ${skippedTestSuites}${chalk.green(`${numPassedTestSuites} passed`)}, ${numTotalTestSuites} total`);
+      this.logger.info(`# testSuites: ${skippedTestSuites}${chalk.green(`${numPassedTestSuites} passed`)}, ${numTotalTestSuites} total`);
     }
 
     if (numFailedTests > 0) {
-      text.push(`# tests:      ${skippedTests}${chalk.red(`${numFailedTests} failed`)}, ${numTotalTests} total`);
+      this.logger.info(`# tests:      ${skippedTests}${chalk.red(`${numFailedTests} failed`)}, ${numTotalTests} total`);
     } else {
-      text.push(`# tests:      ${skippedTests}${chalk.green(`${numPassedTests} passed`)}, ${numTotalTests} total`);
+      this.logger.info(`# tests:      ${skippedTests}${chalk.green(`${numPassedTests} passed`)}, ${numTotalTests} total`);
     }
 
-    text.push(`# time:       ${ms(Date.now() - startTime)}`);
-
-    console.log(`\n${text.join('\n')}\n`);
+    this.logger.info(`# time:       ${ms(Date.now() - startTime)}`);
+    this.logger.info('\n');
   }
 
   getLastError () {

@@ -94,7 +94,7 @@ test('TapReporter must log the start of the tests', () => {
   const tapReporter = new TapReporter();
 
   expect(console.log).toHaveBeenCalledTimes(1);
-  expect(console.log).toHaveBeenCalledWith('\n\nStarting ...\n');
+  expect(console.log).toHaveBeenCalledWith('\n\n# Starting ...\n');
 });
 
 test('TapReporter onTestResults must output error tests', () => {
@@ -104,15 +104,16 @@ test('TapReporter onTestResults must output error tests', () => {
 
   tapReporter.onTestResult({}, failingTestSuite);
 
-  expect(console.log).toHaveBeenCalledTimes(1);
-
   const {
     description,
-    diagnostics,
     directive,
     status,
     testNumber
   } = processTestLine(console.log.mock.calls[0][0]);
+
+  const {
+    diagnostics
+  } = processTestLine(console.log.mock.calls[1][0]);
 
   expect(status).toBe('not ok');
   expect(testNumber).toBe('1');
@@ -180,9 +181,7 @@ test('TapReporter onTestResults must output all the tests on a suite tests', () 
 
   tapReporter.onTestResult({}, severalTestsSuite);
 
-  expect(console.log).toHaveBeenCalledTimes(1);
-
-  const testLines = console.log.mock.calls[0][0].split('\n');
+  const testLines = console.log.mock.calls.map((call) => call[0]);
 
   testLines.forEach((testLine, idx) => {
     const {
@@ -251,11 +250,9 @@ test('TapReporter onRunComplete all suites and tests pass', () => {
 
   tapReporter.onRunComplete({}, results);
 
-  expect(console.log).toHaveBeenCalledWith(`
-# testSuites: 2 passed, 2 total
-# tests:      10 passed, 10 total
-# time:       2s
-`);
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 2 passed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      10 passed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
 });
 
 test('TapReporter onRunComplete some suites and tests fail', () => {
@@ -274,11 +271,9 @@ test('TapReporter onRunComplete some suites and tests fail', () => {
 
   tapReporter.onRunComplete({}, results);
 
-  expect(console.log).toHaveBeenCalledWith(`
-# testSuites: 1 failed, 2 total
-# tests:      1 failed, 10 total
-# time:       2s
-`);
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 1 failed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      1 failed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
 });
 
 test('TapReporter onRunComplete 1 suite failed to execute', () => {
@@ -297,11 +292,9 @@ test('TapReporter onRunComplete 1 suite failed to execute', () => {
 
   tapReporter.onRunComplete({}, results);
 
-  expect(console.log).toHaveBeenCalledWith(`
-# testSuites: 1 failed, 2 total
-# tests:      10 passed, 10 total
-# time:       2s
-`);
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 1 failed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      10 passed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
 });
 
 test('TapReporter onRunComplete some suites and tests skipped', () => {
@@ -320,11 +313,9 @@ test('TapReporter onRunComplete some suites and tests skipped', () => {
 
   tapReporter.onRunComplete({}, results);
 
-  expect(console.log).toHaveBeenCalledWith(`
-# testSuites: 1 skipped, 1 passed, 2 total
-# tests:      5 skipped, 5 passed, 10 total
-# time:       2s
-`);
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 1 skipped, 1 passed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      5 skipped, 5 passed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
 });
 
 test('TapReporter getLastError must return an error the run should fail and undefined otherwise', () => {
