@@ -29,7 +29,6 @@ const processTestLine = (testLine) => {
   const parts = testLine.split(' ');
   const isSuccess = testLine.indexOf('not') !== 0;
   const status = isSuccess ? parts[0] : `${parts[0]} ${parts[1]}`;
-  const testNumber = isSuccess ? parts[1] : parts[2];
   const hasDirective = testLine.indexOf('# SKIP') >= 0;
   const descriptionStartIdx = isSuccess ? 2 : 3;
 
@@ -60,8 +59,7 @@ const processTestLine = (testLine) => {
     description,
     diagnostics,
     directive,
-    status,
-    testNumber
+    status
   };
 };
 
@@ -107,8 +105,7 @@ test('TapReporter onTestResults must output error tests', () => {
   const {
     description,
     directive,
-    status,
-    testNumber
+    status
   } = processTestLine(console.log.mock.calls[0][0]);
 
   const {
@@ -116,7 +113,6 @@ test('TapReporter onTestResults must output error tests', () => {
   } = processTestLine(console.log.mock.calls[1][0]);
 
   expect(status).toBe('not ok');
-  expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
   expect(directive).toBeNull();
   expect(diagnostics.length > 0).toBe(true);
@@ -139,12 +135,10 @@ test('TapReporter onTestResults must output passing tests', () => {
     description,
     diagnostics,
     directive,
-    status,
-    testNumber
+    status
   } = processTestLine(console.log.mock.calls[0][0]);
 
   expect(status).toBe('ok');
-  expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
   expect(directive).toBeNull();
   expect(diagnostics).toBeNull();
@@ -163,12 +157,10 @@ test('TapReporter onTestResults must output skipped tests', () => {
     description,
     diagnostics,
     directive,
-    status,
-    testNumber
+    status
   } = processTestLine(console.log.mock.calls[0][0]);
 
   expect(status).toBe('ok');
-  expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
   expect(directive).toBe('# SKIP');
   expect(diagnostics).toBeNull();
@@ -183,16 +175,14 @@ test('TapReporter onTestResults must output all the tests on a suite tests', () 
 
   const testLines = console.log.mock.calls.map((call) => call[0]);
 
-  testLines.forEach((testLine, idx) => {
+  testLines.forEach((testLine) => {
     const {
       description,
       directive,
-      status,
-      testNumber
+      status
     } = processTestLine(testLine);
 
     expect(status).toBe('ok');
-    expect(testNumber).toBe(String(idx + 1));
     expect(description).not.toBe(string.notEmpty);
     expect(directive).toBeNull();
   });

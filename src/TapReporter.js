@@ -18,11 +18,11 @@ class TapReporter {
   }
 
   onTestResult (contexts, {testResults}) {
-    testResults.forEach((test, idx) => {
+    testResults.forEach((test) => {
       if (test.status === 'passed') {
-        this.logger.log(`${chalk.green('ok')} ${idx + 1} ${test.title}`);
+        this.logger.log(`${chalk.green('ok')} ${test.title}`);
       } else if (test.status === 'failed') {
-        this.logger.log(`${chalk.red('not ok')} ${idx + 1} ${test.title}`);
+        this.logger.log(`${chalk.red('not ok')} ${test.title}`);
 
         if (test.failureMessages.length > 0) {
           const diagnostics = test.failureMessages
@@ -33,7 +33,7 @@ class TapReporter {
           this.logger.error(diagnostics);
         }
       } else if (test.status === 'pending') {
-        this.logger.log(`${chalk.yellow('ok')} ${idx + 1} ${test.title} ${chalk.yellow('# SKIP')}`);
+        this.logger.log(`${chalk.yellow('ok')} ${test.title} ${chalk.yellow('# SKIP')}`);
       }
     });
   }
