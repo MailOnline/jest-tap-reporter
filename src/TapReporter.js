@@ -68,7 +68,7 @@ class TapReporter {
 
     text.push(`# time:       ${ms(Date.now() - startTime)}`);
 
-    console.log(`\n${text.join('\n')}`);
+    console.log(`\n${text.join('\n')}\n`);
   }
 
   getLastError () {

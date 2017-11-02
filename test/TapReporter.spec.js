@@ -254,7 +254,8 @@ test('TapReporter onRunComplete all suites and tests pass', () => {
   expect(console.log).toHaveBeenCalledWith(`
 # testSuites: 2 passed, 2 total
 # tests:      10 passed, 10 total
-# time:       2s`);
+# time:       2s
+`);
 });
 
 test('TapReporter onRunComplete some suites and tests fail', () => {
@@ -276,7 +277,8 @@ test('TapReporter onRunComplete some suites and tests fail', () => {
   expect(console.log).toHaveBeenCalledWith(`
 # testSuites: 1 failed, 2 total
 # tests:      1 failed, 10 total
-# time:       2s`);
+# time:       2s
+`);
 });
 
 test('TapReporter onRunComplete 1 suite failed to execute', () => {
@@ -298,7 +300,8 @@ test('TapReporter onRunComplete 1 suite failed to execute', () => {
   expect(console.log).toHaveBeenCalledWith(`
 # testSuites: 1 failed, 2 total
 # tests:      10 passed, 10 total
-# time:       2s`);
+# time:       2s
+`);
 });
 
 test('TapReporter onRunComplete some suites and tests skipped', () => {
@@ -320,7 +323,8 @@ test('TapReporter onRunComplete some suites and tests skipped', () => {
   expect(console.log).toHaveBeenCalledWith(`
 # testSuites: 1 skipped, 1 passed, 2 total
 # tests:      5 skipped, 5 passed, 10 total
-# time:       2s`);
+# time:       2s
+`);
 });
 
 test('TapReporter getLastError must return an error the run should fail and undefined otherwise', () => {
