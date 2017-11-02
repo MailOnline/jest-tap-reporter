@@ -1,5 +1,6 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
 const chalk = require('chalk');
+const ms = require('ms');
 
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
@@ -36,23 +37,36 @@ class TapReporter {
   }
 
   onRunComplete (contexts, results) {
+    const {
+      numFailedTestSuites,
+      numFailedTests,
+      numPassedTestSuites,
+      numPassedTests,
+      numPendingTestSuites,
+      numPendingTests,
+      numTotalTestSuites,
+      numTotalTests,
+      startTime
+    } = results;
+    const skippedTestSuites = numPendingTestSuites > 0 ? `${chalk.yellow(`${numPendingTestSuites} skipped`)}, ` : '';
+    const skippedTests = numPendingTests > 0 ? `${chalk.yellow(`${numPendingTests} skipped`)}, ` : '';
     const text = [];
-    const format = (msg, color, useColor = true) => {
-      if (useColor) {
-        return chalk[color](msg);
-      }
 
-      return msg;
-    };
+    this._shouldFail = numFailedTestSuites > 0 || numFailedTests > 0;
 
-    this._shouldFail = results.numFailedTestSuites > 0 || results.numFailedTests > 0;
+    if (numFailedTestSuites > 0) {
+      text.push(`# testSuites: ${skippedTestSuites}${chalk.red(`${numFailedTestSuites} failed`)}, ${numTotalTestSuites} total`);
+    } else {
+      text.push(`# testSuites: ${skippedTestSuites}${chalk.green(`${numPassedTestSuites} passed`)}, ${numTotalTestSuites} total`);
+    }
 
-    text.push(format(chalk.grey(`# Total tests: ${results.numTotalTests}\n`), this._shouldFail ? 'bgRed' : 'bgGreen'));
-    text.push(format(`# Passed suites: ${results.numPassedTestSuites}`, 'green', !this._shouldFail));
-    text.push(format(`# Failed suites: ${results.numFailedTestSuites}`, 'red', this._shouldFail));
-    text.push(format(`# Passed tests: ${results.numPassedTests}`, 'green', !this._shouldFail));
-    text.push(format(`# Failed tests: ${results.numFailedTests}`, 'red', this._shouldFail));
-    text.push(format(`# Skipped tests: ${results.numPendingTests}`, 'yellow', results.numPendingTests > 0));
+    if (numFailedTests > 0) {
+      text.push(`# tests:      ${skippedTests}${chalk.red(`${numFailedTests} failed`)}, ${numTotalTests} total`);
+    } else {
+      text.push(`# tests:      ${skippedTests}${chalk.green(`${numPassedTests} passed`)}, ${numTotalTests} total`);
+    }
+
+    text.push(`# time:       ${ms(Date.now() - startTime)}`);
 
     console.log(`\n${text.join('\n')}`);
   }

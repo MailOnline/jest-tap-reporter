@@ -203,7 +203,14 @@ test('TapReporter onRunComplete must set _shouldFail to true if a suite failed',
   const tapReporter = new TapReporter();
   const results = {
     numFailedTests: 0,
-    numFailedTestSuites: 1
+    numFailedTestSuites: 1,
+    numPassedTests: 0,
+    numPassedTestSuites: 0,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 0,
+    numTotalTestSuites: 0,
+    startTime: Date.now() - 2000
   };
 
   tapReporter.onRunComplete({}, results);
@@ -214,36 +221,106 @@ test('TapReporter onRunComplete must set _shouldFail to true if a a test failed'
   const tapReporter = new TapReporter();
   const results = {
     numFailedTests: 1,
-    numFailedTestSuites: 0
+    numFailedTestSuites: 0,
+    numPassedTests: 0,
+    numPassedTestSuites: 0,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 0,
+    numTotalTestSuites: 0,
+    startTime: Date.now() - 2000
   };
 
   tapReporter.onRunComplete({}, results);
   expect(tapReporter._shouldFail).toBe(true);
 });
 
-test('TapReporter onRunComplete must output the Tap results', () => {
+test('TapReporter onRunComplete all suites and tests pass', () => {
   const tapReporter = new TapReporter();
   const results = {
-    numFailedTests: 1,
+    numFailedTests: 0,
     numFailedTestSuites: 0,
-    numPassedTests: 0,
-    numPassedTestSuites: 0,
+    numPassedTests: 10,
+    numPassedTestSuites: 2,
     numPendingTests: 0,
     numPendingTestSuites: 0,
-    numTotalTests: 1,
-    numTotalTestSuites: 1
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
   };
 
   tapReporter.onRunComplete({}, results);
 
   expect(console.log).toHaveBeenCalledWith(`
-# Total tests: 1
+# testSuites: 2 passed, 2 total
+# tests:      10 passed, 10 total
+# time:       2s`);
+});
 
-# Passed suites: 0
-# Failed suites: 0
-# Passed tests: 0
-# Failed tests: 1
-# Skipped tests: 0`);
+test('TapReporter onRunComplete some suites and tests fail', () => {
+  const tapReporter = new TapReporter();
+  const results = {
+    numFailedTests: 1,
+    numFailedTestSuites: 1,
+    numPassedTests: 10,
+    numPassedTestSuites: 2,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
+  };
+
+  tapReporter.onRunComplete({}, results);
+
+  expect(console.log).toHaveBeenCalledWith(`
+# testSuites: 1 failed, 2 total
+# tests:      1 failed, 10 total
+# time:       2s`);
+});
+
+test('TapReporter onRunComplete 1 suite failed to execute', () => {
+  const tapReporter = new TapReporter();
+  const results = {
+    numFailedTests: 0,
+    numFailedTestSuites: 1,
+    numPassedTests: 10,
+    numPassedTestSuites: 1,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
+  };
+
+  tapReporter.onRunComplete({}, results);
+
+  expect(console.log).toHaveBeenCalledWith(`
+# testSuites: 1 failed, 2 total
+# tests:      10 passed, 10 total
+# time:       2s`);
+});
+
+test('TapReporter onRunComplete some suites and tests skipped', () => {
+  const tapReporter = new TapReporter();
+  const results = {
+    numFailedTests: 0,
+    numFailedTestSuites: 0,
+    numPassedTests: 5,
+    numPassedTestSuites: 1,
+    numPendingTests: 5,
+    numPendingTestSuites: 1,
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
+  };
+
+  tapReporter.onRunComplete({}, results);
+
+  expect(console.log).toHaveBeenCalledWith(`
+# testSuites: 1 skipped, 1 passed, 2 total
+# tests:      5 skipped, 5 passed, 10 total
+# time:       2s`);
 });
 
 test('TapReporter getLastError must return an error the run should fail and undefined otherwise', () => {
@@ -255,8 +332,9 @@ test('TapReporter getLastError must return an error the run should fail and unde
     numPassedTestSuites: 0,
     numPendingTests: 0,
     numPendingTestSuites: 0,
-    numTotalTests: 1,
-    numTotalTestSuites: 1
+    numTotalTests: 0,
+    numTotalTestSuites: 0,
+    startTime: Date.now() - 2000
   };
 
   console.log.mockClear();
