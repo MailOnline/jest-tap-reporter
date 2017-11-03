@@ -37,7 +37,7 @@
       "index.js"
     ],
     "reporters": [
-      "./"
+      ["./", {"logLevel": "INFO"}]
     ]
   },
   "dependencies": {
