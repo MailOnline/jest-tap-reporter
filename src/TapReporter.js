@@ -14,6 +14,7 @@ class TapReporter {
       logLevel
     });
 
+    this.logger.log('\n');
     this.logger.info('\n\n# Starting ...\n');
   }
 

@@ -92,7 +92,8 @@ test('TapReporter must log the start of the tests', () => {
   // eslint-disable-next-line no-unused-vars
   const tapReporter = new TapReporter();
 
-  expect(console.log).toHaveBeenCalledTimes(1);
+  expect(console.log).toHaveBeenCalledTimes(2);
+  expect(console.log).toHaveBeenCalledWith('\n');
   expect(console.log).toHaveBeenCalledWith('\n\n# Starting ...\n');
 });
 
