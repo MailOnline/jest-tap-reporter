@@ -14,16 +14,25 @@ class TapReporter {
       logLevel
     });
 
-    this.logger.log('\n\n# Starting ...\n');
+    this.logger.info('\n\n# Starting ...\n');
   }
 
-  onTestResult (contexts, {testResults}) {
+  onTestResult (contexts, suite) {
+    const {testResults, testFilePath} = suite;
+
+    if (testFilePath) {
+      const filePathParts = testFilePath.split('/');
+      const filePath = filePathParts.slice(0, filePathParts.length - 2).join('/');
+      const fileName = filePathParts[filePathParts.length - 1];
+
+      this.logger.info(`\n${chalk.grey('#')}${chalk.bgBlue(' SUITE ')} ${chalk.grey(`${filePath}/`)}${fileName}`);
+    }
+
     testResults.forEach((test) => {
       if (test.status === 'passed') {
         this.logger.log(`${chalk.green('ok')} ${test.title}`);
       } else if (test.status === 'failed') {
         this.logger.log(`${chalk.red('not ok')} ${test.title}`);
-
         if (test.failureMessages.length > 0) {
           const diagnostics = test.failureMessages
             .reduce((lines, msg) => lines.concat(msg.split('\n')), [])

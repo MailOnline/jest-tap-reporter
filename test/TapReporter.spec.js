@@ -8,6 +8,7 @@ const {
 } = require('./fixtures');
 
 jest.mock('chalk', () => ({
+  bgBlue: (str) => str,
   bgGreen: (str) => str,
   bgRed: (str) => str,
   green: (str) => str,
@@ -129,19 +130,34 @@ test('TapReporter onTestResults must output passing tests', () => {
 
   tapReporter.onTestResult({}, passingTestSuite);
 
-  expect(console.log).toHaveBeenCalledTimes(1);
-
   const {
     description,
     diagnostics,
     directive,
     status
-  } = processTestLine(console.log.mock.calls[0][0]);
+  } = processTestLine(console.log.mock.calls[1][0]);
 
   expect(status).toBe('ok');
   expect(description).not.toBe(string.notEmpty);
   expect(directive).toBeNull();
   expect(diagnostics).toBeNull();
+});
+
+test('TapReporter must output a Suite log with the Suites filePath if possible', () => {
+  let tapReporter = new TapReporter();
+
+  console.log.mockClear();
+
+  tapReporter.onTestResult({}, passingTestSuite);
+
+  expect(console.log.mock.calls[0][0]).toBe('\n# SUITE  /Users/carlospastor/dev/mailonline/TapReporter.spec.js');
+  tapReporter = new TapReporter();
+
+  console.log.mockClear();
+
+  tapReporter.onTestResult({}, failingTestSuite);
+
+  expect(console.log.mock.calls[0][0]).not.toEqual(string.startsWith('\n# SUITE'));
 });
 
 test('TapReporter onTestResults must output skipped tests', () => {
