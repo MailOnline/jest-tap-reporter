@@ -14,7 +14,7 @@
   "homepage": "https://github.com/MailOnline/jest-json-to-tap",
   "repository": {
     "type": "git",
-    "url": "git@github.com:MailOnline/jest-json-to-tap.git"
+    "url": "git@github.com:MailOnline/jest-tap-reporter.git"
   },
   "license": "MIT",
   "devDependencies": {
