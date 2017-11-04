@@ -45,10 +45,6 @@ class Logger {
       this.log(...args);
     }
   }
-
-  log (...args) {
-    this.log(...args);
-  }
 }
 
 module.exports = Logger;
