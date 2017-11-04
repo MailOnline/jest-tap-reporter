@@ -14,6 +14,7 @@ class TapReporter {
     this.logger = new Logger({
       logLevel
     });
+    this.counter = 0;
 
     this.logger.log('\n');
     this.logger.info('\n\n# Starting ...\n');
@@ -29,10 +30,12 @@ class TapReporter {
     }
 
     testResults.forEach((test) => {
+      this.counter += 1;
+
       if (test.status === 'passed') {
-        this.logger.log(`${chalk.green('ok')} ${test.title}`);
+        this.logger.log(`${chalk.green('ok')} ${this.counter} ${test.title}`);
       } else if (test.status === 'failed') {
-        this.logger.log(`${chalk.red('not ok')} ${test.title}`);
+        this.logger.log(`${chalk.red('not ok')} ${this.counter} ${test.title}`);
         if (test.failureMessages.length > 0) {
           const diagnostics = test.failureMessages
             .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
@@ -79,6 +82,8 @@ class TapReporter {
 
     this.logger.info(`# time:       ${ms(Date.now() - startTime)}`);
     this.logger.info('\n');
+
+    this.counter = 0;
   }
 
   getLastError () {
