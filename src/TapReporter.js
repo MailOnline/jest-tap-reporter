@@ -1,4 +1,5 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
+const path = require('path');
 const chalk = require('chalk');
 const ms = require('ms');
 const Logger = require('./helpers/Logger');
@@ -22,11 +23,9 @@ class TapReporter {
     const {testResults, testFilePath} = suite;
 
     if (testFilePath) {
-      const filePathParts = testFilePath.split('/');
-      const filePath = filePathParts.slice(0, filePathParts.length - 2).join('/');
-      const fileName = filePathParts[filePathParts.length - 1];
+      const {dir, base} = path.parse(testFilePath);
 
-      this.logger.info(`\n${chalk.grey('#')}${chalk.bgBlue(' SUITE ')} ${chalk.grey(`${filePath}/`)}${fileName}`);
+      this.logger.info(`\n${chalk.grey('#')}${chalk.bgBlue(' SUITE ')} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
     }
 
     testResults.forEach((test) => {

@@ -151,7 +151,7 @@ test('TapReporter must output a Suite log with the Suites filePath if possible',
 
   tapReporter.onTestResult({}, passingTestSuite);
 
-  expect(console.log.mock.calls[0][0]).toBe('\n# SUITE  /Users/carlospastor/dev/mailonline/TapReporter.spec.js');
+  expect(console.log.mock.calls[0][0]).toBe('\n# SUITE  /Users/carlospastor/dev/mailonline/jest-tap-reporter/TapReporter.spec.js');
   tapReporter = new TapReporter();
 
   console.log.mockClear();
