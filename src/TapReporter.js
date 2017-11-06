@@ -11,6 +11,7 @@ class TapReporter {
     this._globalConfig = globalConfig;
     this._options = options;
     this._shouldFail = false;
+    this._watch = this._globalConfig.watch;
     this.logger = new Logger({
       logLevel
     });
@@ -25,15 +26,18 @@ class TapReporter {
 
     if (testFilePath) {
       const {dir, base} = path.parse(testFilePath);
+      const prefix = this._watch ? '' : '\n';
 
-      this.logger.info(`\n${chalk.grey('#')}${chalk[numFailingTests > 0 ? 'bgRed' : 'bgGreen'](' SUITE ')} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
+      this.logger.info(`${prefix}${chalk.grey('#')}${chalk[numFailingTests > 0 ? 'bgRed' : 'bgGreen'](' SUITE ')} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
     }
 
     testResults.forEach((test) => {
       this.counter += 1;
 
       if (test.status === 'passed') {
-        this.logger.log(`${chalk.green('ok')} ${this.counter} ${test.title}`);
+        if (!this._watch) {
+          this.logger.log(`${chalk.green('ok')} ${this.counter} ${test.title}`);
+        }
       } else if (test.status === 'failed') {
         this.logger.log(`${chalk.red('not ok')} ${this.counter} ${test.title}`);
         if (test.failureMessages.length > 0) {
