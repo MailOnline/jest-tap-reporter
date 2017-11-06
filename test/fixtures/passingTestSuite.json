@@ -13,5 +13,6 @@
   "name":"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js",
   "startTime":1500478745692,
   "status":"passed",
-  "summary":""
+  "summary":"",
+  "testFilePath": "/Users/carlospastor/dev/mailonline/jest-tap-reporter/TapReporter.spec.js"
 }

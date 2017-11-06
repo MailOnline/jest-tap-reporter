@@ -1,60 +1,89 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
+const path = require('path');
 const chalk = require('chalk');
+const ms = require('ms');
+const Logger = require('./helpers/Logger');
 
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
+    const {logLevel = 'INFO'} = options;
+
     this._globalConfig = globalConfig;
     this._options = options;
     this._shouldFail = false;
+    this.logger = new Logger({
+      logLevel
+    });
+    this.counter = 0;
 
-    console.log('\n\nStarting ...\n');
+    this.logger.log('\n');
+    this.logger.info('\n\n# Starting ...\n');
   }
 
-  onTestResult (contexts, {testResults}) {
-    const text = [];
+  onTestResult (contexts, suite) {
+    const {testResults, testFilePath} = suite;
 
-    testResults.forEach((test, idx) => {
+    if (testFilePath) {
+      const {dir, base} = path.parse(testFilePath);
+
+      this.logger.info(`\n${chalk.grey('#')}${chalk.bgBlue(' SUITE ')} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
+    }
+
+    testResults.forEach((test) => {
+      this.counter += 1;
+
       if (test.status === 'passed') {
-        text.push(`${chalk.green('ok')} ${idx + 1} ${test.title}`);
+        this.logger.log(`${chalk.green('ok')} ${this.counter} ${test.title}`);
       } else if (test.status === 'failed') {
-        text.push(`${chalk.red('not ok')} ${idx + 1} ${test.title}`);
-
+        this.logger.log(`${chalk.red('not ok')} ${this.counter} ${test.title}`);
         if (test.failureMessages.length > 0) {
           const diagnostics = test.failureMessages
             .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
             .map((line) => chalk.grey(`# ${line}`))
             .join('\n');
 
-          text.push(diagnostics);
+          this.logger.error(diagnostics);
         }
       } else if (test.status === 'pending') {
-        text.push(`${chalk.yellow('ok')} ${idx + 1} ${test.title} ${chalk.yellow('# SKIP -')}`);
+        this.logger.log(`${chalk.yellow('ok')} ${test.title} ${chalk.yellow('# SKIP')}`);
       }
     });
-
-    console.log(text.join('\n'));
   }
 
   onRunComplete (contexts, results) {
-    const text = [];
-    const format = (msg, color, useColor = true) => {
-      if (useColor) {
-        return chalk[color](msg);
-      }
+    const {
+      numFailedTestSuites,
+      numFailedTests,
+      numPassedTestSuites,
+      numPassedTests,
+      numPendingTestSuites,
+      numPendingTests,
+      numTotalTestSuites,
+      numTotalTests,
+      startTime
+    } = results;
+    const skippedTestSuites = numPendingTestSuites > 0 ? `${chalk.yellow(`${numPendingTestSuites} skipped`)}, ` : '';
+    const skippedTests = numPendingTests > 0 ? `${chalk.yellow(`${numPendingTests} skipped`)}, ` : '';
 
-      return msg;
-    };
+    this._shouldFail = numFailedTestSuites > 0 || numFailedTests > 0;
 
-    this._shouldFail = results.numFailedTestSuites > 0 || results.numFailedTests > 0;
+    this.logger.info('\n');
+    if (numFailedTestSuites > 0) {
+      this.logger.info(`# testSuites: ${skippedTestSuites}${chalk.red(`${numFailedTestSuites} failed`)}, ${numTotalTestSuites} total`);
+    } else {
+      this.logger.info(`# testSuites: ${skippedTestSuites}${chalk.green(`${numPassedTestSuites} passed`)}, ${numTotalTestSuites} total`);
+    }
 
-    text.push(format(chalk.grey(`# Total tests: ${results.numTotalTests}\n`), this._shouldFail ? 'bgRed' : 'bgGreen'));
-    text.push(format(`# Passed suites: ${results.numPassedTestSuites}`, 'green', !this._shouldFail));
-    text.push(format(`# Failed suites: ${results.numFailedTestSuites}`, 'red', this._shouldFail));
-    text.push(format(`# Passed tests: ${results.numPassedTests}`, 'green', !this._shouldFail));
-    text.push(format(`# Failed tests: ${results.numFailedTests}`, 'red', this._shouldFail));
-    text.push(format(`# Skipped tests: ${results.numPendingTests}`, 'yellow', results.numPendingTests > 0));
+    if (numFailedTests > 0) {
+      this.logger.info(`# tests:      ${skippedTests}${chalk.red(`${numFailedTests} failed`)}, ${numTotalTests} total`);
+    } else {
+      this.logger.info(`# tests:      ${skippedTests}${chalk.green(`${numPassedTests} passed`)}, ${numTotalTests} total`);
+    }
 
-    console.log(`\n${text.join('\n')}`);
+    this.logger.info(`# time:       ${ms(Date.now() - startTime)}`);
+    this.logger.info('\n');
+
+    this.counter = 0;
   }
 
   getLastError () {

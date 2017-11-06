@@ -8,6 +8,7 @@ const {
 } = require('./fixtures');
 
 jest.mock('chalk', () => ({
+  bgBlue: (str) => str,
   bgGreen: (str) => str,
   bgRed: (str) => str,
   green: (str) => str,
@@ -29,8 +30,7 @@ const processTestLine = (testLine) => {
   const parts = testLine.split(' ');
   const isSuccess = testLine.indexOf('not') !== 0;
   const status = isSuccess ? parts[0] : `${parts[0]} ${parts[1]}`;
-  const testNumber = isSuccess ? parts[1] : parts[2];
-  const hasDirective = testLine.indexOf('# SKIP -') >= 0;
+  const hasDirective = testLine.indexOf('# SKIP') >= 0;
   const descriptionStartIdx = isSuccess ? 2 : 3;
 
   let description;
@@ -60,8 +60,7 @@ const processTestLine = (testLine) => {
     description,
     diagnostics,
     directive,
-    status,
-    testNumber
+    status
   };
 };
 
@@ -93,8 +92,9 @@ test('TapReporter must log the start of the tests', () => {
   // eslint-disable-next-line no-unused-vars
   const tapReporter = new TapReporter();
 
-  expect(console.log).toHaveBeenCalledTimes(1);
-  expect(console.log).toHaveBeenCalledWith('\n\nStarting ...\n');
+  expect(console.log).toHaveBeenCalledTimes(2);
+  expect(console.log).toHaveBeenCalledWith('\n');
+  expect(console.log).toHaveBeenCalledWith('\n\n# Starting ...\n');
 });
 
 test('TapReporter onTestResults must output error tests', () => {
@@ -104,18 +104,17 @@ test('TapReporter onTestResults must output error tests', () => {
 
   tapReporter.onTestResult({}, failingTestSuite);
 
-  expect(console.log).toHaveBeenCalledTimes(1);
-
   const {
     description,
-    diagnostics,
     directive,
-    status,
-    testNumber
+    status
   } = processTestLine(console.log.mock.calls[0][0]);
 
+  const {
+    diagnostics
+  } = processTestLine(console.log.mock.calls[1][0]);
+
   expect(status).toBe('not ok');
-  expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
   expect(directive).toBeNull();
   expect(diagnostics.length > 0).toBe(true);
@@ -132,21 +131,34 @@ test('TapReporter onTestResults must output passing tests', () => {
 
   tapReporter.onTestResult({}, passingTestSuite);
 
-  expect(console.log).toHaveBeenCalledTimes(1);
-
   const {
     description,
     diagnostics,
     directive,
-    status,
-    testNumber
-  } = processTestLine(console.log.mock.calls[0][0]);
+    status
+  } = processTestLine(console.log.mock.calls[1][0]);
 
   expect(status).toBe('ok');
-  expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
   expect(directive).toBeNull();
   expect(diagnostics).toBeNull();
+});
+
+test('TapReporter must output a Suite log with the Suites filePath if possible', () => {
+  let tapReporter = new TapReporter();
+
+  console.log.mockClear();
+
+  tapReporter.onTestResult({}, passingTestSuite);
+
+  expect(console.log.mock.calls[0][0]).toBe('\n# SUITE  /Users/carlospastor/dev/mailonline/jest-tap-reporter/TapReporter.spec.js');
+  tapReporter = new TapReporter();
+
+  console.log.mockClear();
+
+  tapReporter.onTestResult({}, failingTestSuite);
+
+  expect(console.log.mock.calls[0][0]).not.toEqual(string.startsWith('\n# SUITE'));
 });
 
 test('TapReporter onTestResults must output skipped tests', () => {
@@ -162,14 +174,12 @@ test('TapReporter onTestResults must output skipped tests', () => {
     description,
     diagnostics,
     directive,
-    status,
-    testNumber
+    status
   } = processTestLine(console.log.mock.calls[0][0]);
 
   expect(status).toBe('ok');
-  expect(testNumber).toBe('1');
   expect(description).not.toBe(string.notEmpty);
-  expect(directive).toBe('# SKIP -');
+  expect(directive).toBe('# SKIP');
   expect(diagnostics).toBeNull();
 });
 
@@ -180,20 +190,16 @@ test('TapReporter onTestResults must output all the tests on a suite tests', () 
 
   tapReporter.onTestResult({}, severalTestsSuite);
 
-  expect(console.log).toHaveBeenCalledTimes(1);
+  const testLines = console.log.mock.calls.map((call) => call[0]);
 
-  const testLines = console.log.mock.calls[0][0].split('\n');
-
-  testLines.forEach((testLine, idx) => {
+  testLines.forEach((testLine) => {
     const {
       description,
       directive,
-      status,
-      testNumber
+      status
     } = processTestLine(testLine);
 
     expect(status).toBe('ok');
-    expect(testNumber).toBe(String(idx + 1));
     expect(description).not.toBe(string.notEmpty);
     expect(directive).toBeNull();
   });
@@ -203,7 +209,14 @@ test('TapReporter onRunComplete must set _shouldFail to true if a suite failed',
   const tapReporter = new TapReporter();
   const results = {
     numFailedTests: 0,
-    numFailedTestSuites: 1
+    numFailedTestSuites: 1,
+    numPassedTests: 0,
+    numPassedTestSuites: 0,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 0,
+    numTotalTestSuites: 0,
+    startTime: Date.now() - 2000
   };
 
   tapReporter.onRunComplete({}, results);
@@ -214,36 +227,102 @@ test('TapReporter onRunComplete must set _shouldFail to true if a a test failed'
   const tapReporter = new TapReporter();
   const results = {
     numFailedTests: 1,
-    numFailedTestSuites: 0
+    numFailedTestSuites: 0,
+    numPassedTests: 0,
+    numPassedTestSuites: 0,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 0,
+    numTotalTestSuites: 0,
+    startTime: Date.now() - 2000
   };
 
   tapReporter.onRunComplete({}, results);
   expect(tapReporter._shouldFail).toBe(true);
 });
 
-test('TapReporter onRunComplete must output the Tap results', () => {
+test('TapReporter onRunComplete all suites and tests pass', () => {
   const tapReporter = new TapReporter();
   const results = {
-    numFailedTests: 1,
+    numFailedTests: 0,
     numFailedTestSuites: 0,
-    numPassedTests: 0,
-    numPassedTestSuites: 0,
+    numPassedTests: 10,
+    numPassedTestSuites: 2,
     numPendingTests: 0,
     numPendingTestSuites: 0,
-    numTotalTests: 1,
-    numTotalTestSuites: 1
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
   };
 
   tapReporter.onRunComplete({}, results);
 
-  expect(console.log).toHaveBeenCalledWith(`
-# Total tests: 1
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 2 passed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      10 passed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
+});
 
-# Passed suites: 0
-# Failed suites: 0
-# Passed tests: 0
-# Failed tests: 1
-# Skipped tests: 0`);
+test('TapReporter onRunComplete some suites and tests fail', () => {
+  const tapReporter = new TapReporter();
+  const results = {
+    numFailedTests: 1,
+    numFailedTestSuites: 1,
+    numPassedTests: 10,
+    numPassedTestSuites: 2,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
+  };
+
+  tapReporter.onRunComplete({}, results);
+
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 1 failed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      1 failed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
+});
+
+test('TapReporter onRunComplete 1 suite failed to execute', () => {
+  const tapReporter = new TapReporter();
+  const results = {
+    numFailedTests: 0,
+    numFailedTestSuites: 1,
+    numPassedTests: 10,
+    numPassedTestSuites: 1,
+    numPendingTests: 0,
+    numPendingTestSuites: 0,
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
+  };
+
+  tapReporter.onRunComplete({}, results);
+
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 1 failed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      10 passed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
+});
+
+test('TapReporter onRunComplete some suites and tests skipped', () => {
+  const tapReporter = new TapReporter();
+  const results = {
+    numFailedTests: 0,
+    numFailedTestSuites: 0,
+    numPassedTests: 5,
+    numPassedTestSuites: 1,
+    numPendingTests: 5,
+    numPendingTestSuites: 1,
+    numTotalTests: 10,
+    numTotalTestSuites: 2,
+    startTime: Date.now() - 2000
+  };
+
+  tapReporter.onRunComplete({}, results);
+
+  expect(console.log).toHaveBeenCalledWith('# testSuites: 1 skipped, 1 passed, 2 total');
+  expect(console.log).toHaveBeenCalledWith('# tests:      5 skipped, 5 passed, 10 total');
+  expect(console.log).toHaveBeenCalledWith('# time:       2s');
 });
 
 test('TapReporter getLastError must return an error the run should fail and undefined otherwise', () => {
@@ -255,8 +334,9 @@ test('TapReporter getLastError must return an error the run should fail and unde
     numPassedTestSuites: 0,
     numPendingTests: 0,
     numPendingTestSuites: 0,
-    numTotalTests: 1,
-    numTotalTestSuites: 1
+    numTotalTests: 0,
+    numTotalTestSuites: 0,
+    startTime: Date.now() - 2000
   };
 
   console.log.mockClear();
