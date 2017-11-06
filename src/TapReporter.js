@@ -27,8 +27,9 @@ class TapReporter {
     if (testFilePath) {
       const {dir, base} = path.parse(testFilePath);
       const prefix = this._watch ? '' : '\n';
+      const label = chalk[numFailingTests > 0 ? 'bgRed' : 'bgGreen'](` ${chalk.black('SUITE')} `);
 
-      this.logger.info(`${prefix}${chalk.grey('#')}${chalk[numFailingTests > 0 ? 'bgRed' : 'bgGreen'](` ${chalk.black('SUITE')} `)} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
+      this.logger.info(`${prefix}${chalk.grey('#')}${label} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
     }
 
     testResults.forEach((test) => {
