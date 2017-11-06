@@ -21,12 +21,12 @@ class TapReporter {
   }
 
   onTestResult (contexts, suite) {
-    const {testResults, testFilePath} = suite;
+    const {testResults, testFilePath, numFailingTests} = suite;
 
     if (testFilePath) {
       const {dir, base} = path.parse(testFilePath);
 
-      this.logger.info(`\n${chalk.grey('#')}${chalk.bgBlue(' SUITE ')} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
+      this.logger.info(`\n${chalk.grey('#')}${chalk[numFailingTests > 0 ? 'bgRed' : 'bgGreen'](' SUITE ')} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
     }
 
     testResults.forEach((test) => {
