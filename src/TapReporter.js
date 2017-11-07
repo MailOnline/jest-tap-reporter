@@ -81,6 +81,7 @@ class TapReporter {
   }
 
   onRunComplete (contexts, results) {
+    const {estimatedTime} = this.onRunStartOptions;
     const {
       numFailedTestSuites,
       numFailedTests,
@@ -93,8 +94,6 @@ class TapReporter {
       snapshot,
       startTime
     } = results;
-
-    const {estimatedTime} = this.onRunStartOptions;
 
     this._shouldFail = numFailedTestSuites > 0 || numFailedTests > 0;
 

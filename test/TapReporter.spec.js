@@ -7,16 +7,7 @@ const {
   skippedTestSuite
 } = require('./fixtures');
 
-jest.mock('chalk', () => ({
-  bgBlue: (str) => str,
-  bgGreen: (str) => str,
-  bgRed: (str) => str,
-  black: (str) => str,
-  green: (str) => str,
-  grey: (str) => str,
-  red: (str) => str,
-  yellow: (str) => str
-}));
+jest.mock('chalk', () => jest.fn());
 
 let origLog;
 

@@ -2,8 +2,16 @@ const path = require('path');
 const chalk = require('chalk');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
+const REG_INTERNALS = /^(node_modules|internal)\//;
+const REG_AT = /^\s*at/;
+const REG_ERROR = /^\s*Error:\s*/;
+
 const MDASH = '\u2014';
 const CIRCLE = '●';
+
+const formatComment = (line) => chalk`{hidden #} ${line}`;
+const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
+  chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
 
 class LineWriter {
   constructor (logger, root) {
@@ -23,7 +31,7 @@ class LineWriter {
   }
 
   comment (line) {
-    this.logger.info(chalk`{hidden #} ${line}`);
+    this.logger.info(formatComment(line));
   }
 
   commentLight (line) {
@@ -75,39 +83,51 @@ class LineWriter {
     return path.relative(this.root, filePath);
   }
 
-  formatFailureMessageTraceLine (line) {
-    const matches = line.match(REG_TRACE_LINE);
-
-    if (matches) {
-      const [, description, file, row, column] = matches;
-
-      return chalk`${description}({cyan ${this.getPathRelativeToRoot(file)}}:{black.bold ${row}}:{black.bold ${column}})`;
-    } else {
-      return line;
-    }
-  }
-
   formatFailureMessage (message) {
     const [firstLine, ...lines] = message.split('\n');
     const formattedLines = [];
-    const whitespace = ' '.repeat(9 + String(this.counter).length);
+    const whitespace = '  ';
 
-    const push = (line) => {
-      const formattedLine = chalk`{hidden #}${whitespace}${line}`;
+    const push = (line) => formattedLines.push(formatComment(whitespace + line));
+    const pushTraceLine = (line) => push(chalk`  {grey ${line}}`);
+    const pushTraceLineDim = (line) => pushTraceLine(chalk`{dim ${line}}`);
 
-      formattedLines.push(formattedLine);
-    };
+    let firstLineFormatted = firstLine;
 
-    const pushTraceLine = (line) => {
-      push(chalk`  {grey ${line}}`);
-    };
+    // Remove leading `Error: `
+    firstLineFormatted = firstLineFormatted.replace(REG_ERROR, '');
 
     push('');
-    push(firstLine);
+    push(firstLineFormatted);
     push('');
+
+    let internalsStarted = false;
 
     for (const line of lines) {
-      pushTraceLine(this.formatFailureMessageTraceLine(line));
+      if (line.match(REG_AT)) {
+        const matches = line.match(REG_TRACE_LINE);
+
+        if (matches) {
+          const [, description, file, row, column] = matches;
+          const relativeFilePath = path.relative(this.root, file);
+
+          if (relativeFilePath.match(REG_INTERNALS)) {
+            internalsStarted = true;
+          }
+
+          // eslint-disable-next-line no-lonely-if
+          if (internalsStarted) {
+            pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+          } else {
+            pushTraceLine(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+          }
+        } else {
+          pushTraceLine(line);
+        }
+      } else {
+        push(line);
+        push('');
+      }
     }
 
     push('');
