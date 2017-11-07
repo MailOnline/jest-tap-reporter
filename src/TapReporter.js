@@ -22,14 +22,21 @@ class TapReporter {
 
     this.onTest = (test) => {
       this.counter += 1;
+      const {counter} = this;
+      const {ancestorTitles, title} = test;
       let tapLine;
+      let formattedTitle = title;
+
+      if (ancestorTitles.length) {
+        formattedTitle = [...ancestorTitles, formattedTitle].join(' › ');
+      }
 
       if (test.status === 'passed') {
         if (!this._watch) {
-          tapLine = chalk`{green ok} ${this.counter} ${test.title}`;
+          tapLine = chalk`{green ok} ${counter} ${formattedTitle}`;
         }
       } else if (test.status === 'failed') {
-        tapLine = chalk`{red not ok} ${this.counter} ${test.title}`;
+        tapLine = chalk`{red not ok} ${counter} ${formattedTitle}`;
         if (test.failureMessages.length > 0) {
           const diagnostics = test.failureMessages
             .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
@@ -39,7 +46,7 @@ class TapReporter {
           this.logger.error(diagnostics);
         }
       } else if (test.status === 'pending') {
-        tapLine = chalk`{yellow ok} ${test.title} {yellow # SKIP}`;
+        tapLine = chalk`{yellow ok} ${counter} ${formattedTitle} {yellow # SKIP}`;
       }
 
       this.logger.log(tapLine);
