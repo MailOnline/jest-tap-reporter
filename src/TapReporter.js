@@ -8,6 +8,8 @@ const STATUS_PASSED = 'passed';
 const STATUS_FAILED = 'failed';
 const STATUS_PENDING = 'pending';
 
+const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
+
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
@@ -24,9 +26,20 @@ class TapReporter {
     this.onAssertionResult = this.onAssertionResult.bind(this);
   }
 
-  formatFailureMessage (message, assertiontResult) {
+  formatFailureMessageTraceLine (line) {
+    const matches = line.match(REG_TRACE_LINE);
+
+    if (matches) {
+      const [, description, file, row, column] = matches;
+
+      return chalk`${description}({cyan ${file}}:{black.bold ${row}}:{black.bold ${column}})`;
+    } else {
+      return line;
+    }
+  }
+
+  formatFailureMessage (message) {
     const [firstLine, ...lines] = message.split('\n');
-    const {duration} = assertiontResult;
     const formattedLines = [];
     const whitespace = ' '.repeat(9 + String(this.counter).length);
 
@@ -36,12 +49,16 @@ class TapReporter {
       formattedLines.push(formattedLine);
     };
 
+    const pushTraceLine = (line) => {
+      push(chalk`  {grey ${line}}`);
+    };
+
     push('');
     push(firstLine);
     push('');
 
     for (const line of lines) {
-      push(line);
+      pushTraceLine(this.formatFailureMessageTraceLine(line));
     }
 
     push('');
@@ -49,8 +66,8 @@ class TapReporter {
     return formattedLines.join('\n');
   }
 
-  formatFailureMessages (messages, assertiontResult) {
-    return messages.map((message) => this.formatFailureMessage(message, assertiontResult)).join('\n');
+  formatFailureMessages (messages) {
+    return messages.map((message) => this.formatFailureMessage(message)).join('\n');
   }
 
   onAssertionResult (assertiontResult) {
@@ -65,12 +82,12 @@ class TapReporter {
     switch (status) {
     case STATUS_PASSED:
       if (!this._watch) {
-        formattedLine = chalk`{green ok} ${counter} ${formattedTitle}`;
+        formattedLine = chalk`{green ok} {grey.dim ${counter}} ${formattedTitle}`;
       }
       break;
     case STATUS_FAILED:
-      formattedLine = chalk`{red not ok} ${counter} {red.bold ● ${formattedTitle}}`;
-      formattedDiagnostics = this.formatFailureMessages(failureMessages, assertiontResult);
+      formattedLine = chalk`{red not ok} {grey.dim ${counter}} {red.bold ● ${formattedTitle}}`;
+      formattedDiagnostics = this.formatFailureMessages(failureMessages);
       break;
     case STATUS_PENDING:
       formattedLine = chalk`{yellow ok} {bgYellow.rgba(255,255,255) ${counter}} ${formattedTitle} {yellow # SKIP}`;
