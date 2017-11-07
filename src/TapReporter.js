@@ -19,6 +19,31 @@ class TapReporter {
 
     this.logger.log('\n');
     this.logger.info('\n\n# Starting ...\n');
+
+    this.onTest = (test) => {
+      this.counter += 1;
+      let tapLine;
+
+      if (test.status === 'passed') {
+        if (!this._watch) {
+          tapLine = chalk`{green ok} ${this.counter} ${test.title}`;
+        }
+      } else if (test.status === 'failed') {
+        tapLine = chalk`{red not ok} ${this.counter} ${test.title}`;
+        if (test.failureMessages.length > 0) {
+          const diagnostics = test.failureMessages
+            .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
+            .map((line) => chalk.grey(`# ${line}`))
+            .join('\n');
+
+          this.logger.error(diagnostics);
+        }
+      } else if (test.status === 'pending') {
+        tapLine = chalk`{yellow ok} ${test.title} {yellow # SKIP}`;
+      }
+
+      this.logger.log(tapLine);
+    };
   }
 
   onTestResult (contexts, suite) {
@@ -32,31 +57,10 @@ class TapReporter {
         chalk`{bgGreen.bold.rgb(255,255,255)  PASS }`;
       const tapLine = chalk`${prefix}{rgb(255,255,255) #} ${label} {grey ${dir}${path.sep}}{bold ${base}}`;
 
-      this.logger.info(tapLine);
-      this.logger.info('');
+      this.logger.info(tapLine + '\n');
     }
 
-    testResults.forEach((test) => {
-      this.counter += 1;
-
-      if (test.status === 'passed') {
-        if (!this._watch) {
-          this.logger.log(`${chalk.green('ok')} ${this.counter} ${test.title}`);
-        }
-      } else if (test.status === 'failed') {
-        this.logger.log(`${chalk.red('not ok')} ${this.counter} ${test.title}`);
-        if (test.failureMessages.length > 0) {
-          const diagnostics = test.failureMessages
-            .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
-            .map((line) => chalk.grey(`# ${line}`))
-            .join('\n');
-
-          this.logger.error(diagnostics);
-        }
-      } else if (test.status === 'pending') {
-        this.logger.log(`${chalk.yellow('ok')} ${test.title} ${chalk.yellow('# SKIP')}`);
-      }
-    });
+    testResults.forEach(this.onTest);
   }
 
   onRunComplete (contexts, results) {
