@@ -1,4 +1,4 @@
-const Logger = require('../../src/helpers/Logger');
+const Logger = require('../src/Logger');
 
 describe('Logger', () => {
   test('must set the INFO as the default level', () => {
