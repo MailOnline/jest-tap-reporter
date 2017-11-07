@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TapReporter onTestResults must output error tests 1`] = `
+Array [
+  Array [
+    "{red must output the plan}",
+  ],
+]
+`;
+
+exports[`TapReporter onTestResults must output passing tests 1`] = `
+Array [
+  Array [
+    "{rgb(80,80,80) must output the plan}",
+  ],
+]
+`;
+
+exports[`TapReporter onTestResults suite log must output a suite log with the Suites filePath if possible 1`] = `
+Array [
+  Array [
+    false,
+    "/Users/carlospastor/dev/mailonline/jest-tap-reporter",
+    "TapReporter.spec.js",
+  ],
+]
+`;

@@ -22,9 +22,7 @@ class TapReporter {
     this.writer = new LineWriter(this.logger, globalConfig.rootDir);
     this.onAssertionResult = this.onAssertionResult.bind(this);
 
-    this.writer.blank();
-    this.writer.blank();
-    this.writer.comment(chalk`{green Starting...}`);
+    this.writer.start();
   }
 
   pathRelativeToRoot (filePath) {
@@ -32,7 +30,7 @@ class TapReporter {
   }
 
   onAssertionResult (assertiontResult) {
-    const {ancestorTitles, duration, failureMessages, location, numPassingAsserts, title, status} = assertiontResult;
+    const {ancestorTitles = [], failureMessages, title, status} = assertiontResult;
 
     let formattedTitle = status === STATUS_FAILED ?
       chalk`{red ${title}}` :
@@ -100,7 +98,7 @@ class TapReporter {
     this.writer.blank();
     this.writer.stats('Test Suites', numFailedTestSuites, numPendingTestSuites, numPassedTestSuites, numTotalTestSuites);
     this.writer.stats('Tests', numFailedTests, numPendingTests, numPassedTests, numTotalTests);
-    this.writer.stats('Snapshots', snapshot.total - snapshot.matched, 0, snapshot.matched, snapshot.total);
+    this.writer.stats('Snapshots', snapshot.total - snapshot.matched - snapshot.added, 0, snapshot.matched + snapshot.added, snapshot.total);
     this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s, estimated ${estimatedTime}s`);
     this.writer.commentLight('Ran all test suites.');
     this.writer.blank();

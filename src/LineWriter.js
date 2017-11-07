@@ -20,6 +20,12 @@ class LineWriter {
     this.root = root;
   }
 
+  start () {
+    this.blank();
+    this.blank();
+    this.comment(chalk`{green Starting...}`);
+  }
+
   getNextNumber () {
     this.counter++;
 
@@ -49,13 +55,15 @@ class LineWriter {
     let value = '';
 
     if (total) {
-      value += chalk`{red.bold ${failed} failed}`;
-
-      if (skipped) {
-        value += chalk`, {yellow.bold ${skipped} skipped}`;
+      if (failed) {
+        value += (value ? ', ' : '') + chalk`{red.bold ${failed} failed}`;
       }
 
-      value += chalk`, {green.bold ${passed} passed}`;
+      if (skipped) {
+        value += (value ? ', ' : '') + chalk`{yellow.bold ${skipped} skipped}`;
+      }
+
+      value += (value ? ', ' : '') + chalk`{green.bold ${passed} passed}`;
     }
 
     value += `${total ? ', ' : ''}${total} total`;

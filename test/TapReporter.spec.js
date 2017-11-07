@@ -1,4 +1,5 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, max-nested-callbacks */
+const chalk = require('chalk');
 const TapReporter = require('../src/TapReporter');
 const {
   failingTestSuite,
@@ -8,8 +9,17 @@ const {
 } = require('./fixtures');
 
 jest.mock('chalk', () => jest.fn());
+jest.mock('../src/LineWriter');
 
-let origLog;
+chalk.mockImplementation((templates, ...rest) => {
+  let str = '';
+
+  for (let index = 0; index < rest.length; index++) {
+    str += templates[index] + rest[index];
+  }
+
+  return str + templates[templates.length - 1];
+});
 
 const string = {
   any: expect.stringMatching(/.*/),
@@ -57,15 +67,6 @@ const processTestLine = (testLine) => {
 };
 
 describe('TapReporter', () => {
-  beforeEach(() => {
-    origLog = console.log;
-    console.log = jest.fn();
-  });
-
-  afterEach(() => {
-    console.log = origLog;
-  });
-
   test('must publish the globalConfig and the options', () => {
     const globalConfig = {};
     const options = {};
@@ -82,78 +83,44 @@ describe('TapReporter', () => {
   });
 
   test('must log the start of the tests', () => {
-    // eslint-disable-next-line no-unused-vars
     const tapReporter = new TapReporter();
 
-    expect(console.log).toHaveBeenCalledTimes(2);
-    expect(console.log).toHaveBeenCalledWith('\n');
-    expect(console.log).toHaveBeenCalledWith('\n\n# Starting ...\n');
+    expect(tapReporter.writer.start).toHaveBeenCalledTimes(1);
+    expect(tapReporter.writer.start).not.toHaveBeenCalledTimes(2);
   });
 
-  test('onTestResults must output error tests', () => {
-    const tapReporter = new TapReporter();
+  describe('onTestResults', () => {
+    test('must output error tests', () => {
+      const tapReporter = new TapReporter();
 
-    console.log.mockClear();
+      tapReporter.onTestResult({}, failingTestSuite);
 
-    tapReporter.onTestResult({}, failingTestSuite);
+      expect(tapReporter.writer.failed).toHaveBeenCalledTimes(1);
+      expect(tapReporter.writer.failed.mock.calls).toMatchSnapshot();
+    });
 
-    const {
-      description,
-      directive,
-      status
-    } = processTestLine(console.log.mock.calls[0][0]);
+    test('must output passing tests', () => {
+      const tapReporter = new TapReporter();
 
-    const {
-      diagnostics
-    } = processTestLine(console.log.mock.calls[1][0]);
+      tapReporter.onTestResult({}, passingTestSuite);
 
-    expect(status).toBe('not ok');
-    expect(description).not.toBe(string.notEmpty);
-    expect(directive).toBeNull();
-    expect(diagnostics.length > 0).toBe(true);
+      expect(tapReporter.writer.passed).toHaveBeenCalledTimes(1);
+      expect(tapReporter.writer.passed.mock.calls).toMatchSnapshot();
+    });
 
-    diagnostics.forEach((diagnosticsLine) => {
-      expect(diagnosticsLine).toEqual(string.startsWith('# '));
+    describe('suite log', () => {
+      test('must output a suite log with the Suites filePath if possible', () => {
+        const tapReporter = new TapReporter();
+
+        tapReporter.onTestResult({}, passingTestSuite);
+
+        expect(tapReporter.writer.suite).toHaveBeenCalledTimes(1);
+        expect(tapReporter.writer.suite.mock.calls).toMatchSnapshot();
+      });
     });
   });
 
-  test('onTestResults must output passing tests', () => {
-    const tapReporter = new TapReporter();
-
-    console.log.mockClear();
-
-    tapReporter.onTestResult({}, passingTestSuite);
-
-    const {
-      description,
-      diagnostics,
-      directive,
-      status
-    } = processTestLine(console.log.mock.calls[1][0]);
-
-    expect(status).toBe('ok');
-    expect(description).not.toBe(string.notEmpty);
-    expect(directive).toBeNull();
-    expect(diagnostics).toBeNull();
-  });
-
-  test('must output a Suite log with the Suites filePath if possible', () => {
-    let tapReporter = new TapReporter();
-
-    console.log.mockClear();
-
-    tapReporter.onTestResult({}, passingTestSuite);
-
-    expect(console.log.mock.calls[0][0]).toBe('\n# SUITE  /Users/carlospastor/dev/mailonline/jest-tap-reporter/TapReporter.spec.js');
-    tapReporter = new TapReporter();
-
-    console.log.mockClear();
-
-    tapReporter.onTestResult({}, failingTestSuite);
-
-    expect(console.log.mock.calls[0][0]).not.toEqual(string.startsWith('\n# SUITE'));
-  });
-
+/*
   test('onTestResults must output skipped tests', () => {
     const tapReporter = new TapReporter();
 
@@ -339,4 +306,5 @@ describe('TapReporter', () => {
     tapReporter = new TapReporter();
     expect(tapReporter.getLastError()).toBe(undefined);
   });
+  */
 });
