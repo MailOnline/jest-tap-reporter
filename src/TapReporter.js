@@ -9,6 +9,7 @@ const STATUS_FAILED = 'failed';
 const STATUS_PENDING = 'pending';
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
+const MDASH = '\u2014';
 
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
@@ -74,7 +75,7 @@ class TapReporter {
     this.counter += 1;
     const {counter} = this;
     const {ancestorTitles, duration, failureMessages, location, numPassingAsserts, title, status} = assertiontResult;
-    const formattedTitle = [...ancestorTitles, title].join(' › ');
+    const formattedTitle = [...ancestorTitles, chalk`{rgb(80,80,80) ${title}}`].join(' › ');
 
     let formattedLine;
     let formattedDiagnostics;
@@ -82,7 +83,7 @@ class TapReporter {
     switch (status) {
     case STATUS_PASSED:
       if (!this._watch) {
-        formattedLine = chalk`{green ok} {grey.dim ${counter}} ${formattedTitle}`;
+        formattedLine = chalk`{green ok} {grey.dim ${counter}} ${MDASH} ${formattedTitle}`;
       }
       break;
     case STATUS_FAILED:
@@ -111,7 +112,7 @@ class TapReporter {
       const label = numFailingTests > 0 ?
         chalk`{bgRed.bold.rgb(255,255,255)  FAIL }` :
         chalk`{bgGreen.bold.rgb(255,255,255)  PASS }`;
-      const tapLine = chalk`${prefix}{rgb(255,255,255) #} ${label} {grey ${dir}${path.sep}}{bold ${base}}`;
+      const tapLine = chalk`${prefix}{hidden #} ${label} {grey ${dir}${path.sep}}{bold ${base}}`;
 
       this.logger.info(tapLine + '\n');
     }
