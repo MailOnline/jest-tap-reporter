@@ -75,7 +75,12 @@ class TapReporter {
     this.counter += 1;
     const {counter} = this;
     const {ancestorTitles, duration, failureMessages, location, numPassingAsserts, title, status} = assertiontResult;
-    const formattedTitle = [...ancestorTitles, chalk`{rgb(80,80,80) ${title}}`].join(' › ');
+
+    let formattedTitle = status === STATUS_FAILED ?
+      chalk`{red ${title}}` :
+      chalk`{rgb(80,80,80) ${title}}`;
+
+    formattedTitle = [...ancestorTitles, formattedTitle].join(' › ');
 
     let formattedLine;
     let formattedDiagnostics;
@@ -91,7 +96,8 @@ class TapReporter {
       formattedDiagnostics = this.formatFailureMessages(failureMessages);
       break;
     case STATUS_PENDING:
-      formattedLine = chalk`{yellow ok} {bgYellow.rgba(255,255,255) ${counter}} ${formattedTitle} {yellow # SKIP}`;
+      formattedLine = chalk`{yellow ok} {grey.dim ${counter}} {yellow #} {yellow.bold TODO} ${formattedTitle}`;
+      formattedDiagnostics = this.formatFailureMessages(failureMessages);
       break;
     default:
       formattedLine = chalk`{italic # Unknown status: ${status}}`;
