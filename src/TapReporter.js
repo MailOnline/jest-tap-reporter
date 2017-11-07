@@ -4,6 +4,10 @@ const chalk = require('chalk');
 const ms = require('ms');
 const Logger = require('./helpers/Logger');
 
+const STATUS_PASSED = 'passed';
+const STATUS_FAILED = 'failed';
+const STATUS_PENDING = 'pending';
+
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
@@ -16,41 +20,69 @@ class TapReporter {
       logLevel
     });
     this.counter = 0;
+    this.logger.info(chalk`\n\n{hidden #} {green Starting...}`);
+    this.onAssertionResult = this.onAssertionResult.bind(this);
+  }
 
-    this.logger.log('\n');
-    this.logger.info('\n\n# Starting ...\n');
+  formatFailureMessage (message, assertiontResult) {
+    const [firstLine, ...lines] = message.split('\n');
+    const {duration} = assertiontResult;
+    const formattedLines = [];
+    const whitespace = ' '.repeat(9 + String(this.counter).length);
 
-    this.onTest = (test) => {
-      this.counter += 1;
-      const {counter} = this;
-      const {ancestorTitles, title} = test;
-      let tapLine;
-      let formattedTitle = title;
+    const push = (line) => {
+      const formattedLine = chalk`{hidden #}${whitespace}${line}`;
 
-      if (ancestorTitles.length) {
-        formattedTitle = [...ancestorTitles, formattedTitle].join(' › ');
-      }
-
-      if (test.status === 'passed') {
-        if (!this._watch) {
-          tapLine = chalk`{green ok} ${counter} ${formattedTitle}`;
-        }
-      } else if (test.status === 'failed') {
-        tapLine = chalk`{red not ok} ${counter} ${formattedTitle}`;
-        if (test.failureMessages.length > 0) {
-          const diagnostics = test.failureMessages
-            .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
-            .map((line) => chalk.grey(`# ${line}`))
-            .join('\n');
-
-          this.logger.error(diagnostics);
-        }
-      } else if (test.status === 'pending') {
-        tapLine = chalk`{yellow ok} ${counter} ${formattedTitle} {yellow # SKIP}`;
-      }
-
-      this.logger.log(tapLine);
+      formattedLines.push(formattedLine);
     };
+
+    push('');
+    push(firstLine);
+    push('');
+
+    for (const line of lines) {
+      push(line);
+    }
+
+    push('');
+
+    return formattedLines.join('\n');
+  }
+
+  formatFailureMessages (messages, assertiontResult) {
+    return messages.map((message) => this.formatFailureMessage(message, assertiontResult)).join('\n');
+  }
+
+  onAssertionResult (assertiontResult) {
+    this.counter += 1;
+    const {counter} = this;
+    const {ancestorTitles, duration, failureMessages, location, numPassingAsserts, title, status} = assertiontResult;
+    const formattedTitle = [...ancestorTitles, title].join(' › ');
+
+    let formattedLine;
+    let formattedDiagnostics;
+
+    switch (status) {
+    case STATUS_PASSED:
+      if (!this._watch) {
+        formattedLine = chalk`{green ok} ${counter} ${formattedTitle}`;
+      }
+      break;
+    case STATUS_FAILED:
+      formattedLine = chalk`{red not ok} ${counter} {red.bold ● ${formattedTitle}}`;
+      formattedDiagnostics = this.formatFailureMessages(failureMessages, assertiontResult);
+      break;
+    case STATUS_PENDING:
+      formattedLine = chalk`{yellow ok} {bgYellow.rgba(255,255,255) ${counter}} ${formattedTitle} {yellow # SKIP}`;
+      break;
+    default:
+      formattedLine = chalk`{italic # Unknown status: ${status}}`;
+    }
+
+    this.logger.log(formattedLine);
+    if (formattedDiagnostics) {
+      this.logger.error(formattedDiagnostics);
+    }
   }
 
   onTestResult (contexts, suite) {
@@ -67,7 +99,7 @@ class TapReporter {
       this.logger.info(tapLine + '\n');
     }
 
-    testResults.forEach(this.onTest);
+    testResults.forEach(this.onAssertionResult);
   }
 
   onRunComplete (contexts, results) {
