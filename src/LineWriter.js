@@ -124,6 +124,14 @@ class LineWriter {
 
     this.logger.error(formattedMessages);
   }
+
+  suite (isFail, dir, base) {
+    const label = isFail ?
+      chalk`{bgRed.rgb(255,255,255).bold  FAIL }` :
+      chalk`{bgGreen.rgb(255,255,255).bold  PASS }`;
+
+    this.comment(chalk`${label} {grey ${this.getPathRelativeToRoot(dir)}${path.sep}}{bold ${base}}`);
+  }
 }
 
 module.exports = LineWriter;

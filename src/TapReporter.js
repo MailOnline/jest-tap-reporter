@@ -64,13 +64,12 @@ class TapReporter {
 
     if (testFilePath) {
       const {dir, base} = path.parse(testFilePath);
-      const prefix = this._watch ? '' : '\n';
-      const label = numFailingTests > 0 ?
-        chalk`{bgRed.rgb(255,255,255).bold  FAIL }` :
-        chalk`{bgGreen.rgb(255,255,255).bold  PASS }`;
-      const tapLine = chalk`${prefix}{hidden #} ${label} {grey ${this.pathRelativeToRoot(dir)}${path.sep}}{bold ${base}}`;
 
-      this.logger.info(tapLine + '\n');
+      if (!this._watch) {
+        this.writer.blank();
+      }
+      this.writer.suite(numFailingTests > 0, dir, base);
+      this.writer.blank();
     }
 
     testResults.forEach(this.onAssertionResult);
