@@ -27,13 +27,17 @@ class TapReporter {
     this.onAssertionResult = this.onAssertionResult.bind(this);
   }
 
+  pathRelativeToRoot (filePath) {
+    return path.relative(this._globalConfig.rootDir, filePath);
+  }
+
   formatFailureMessageTraceLine (line) {
     const matches = line.match(REG_TRACE_LINE);
 
     if (matches) {
       const [, description, file, row, column] = matches;
 
-      return chalk`${description}({cyan ${file}}:{black.bold ${row}}:{black.bold ${column}})`;
+      return chalk`${description}({cyan ${this.pathRelativeToRoot(file)}}:{black.bold ${row}}:{black.bold ${column}})`;
     } else {
       return line;
     }
@@ -118,7 +122,7 @@ class TapReporter {
       const label = numFailingTests > 0 ?
         chalk`{bgRed.bold.rgb(255,255,255)  FAIL }` :
         chalk`{bgGreen.bold.rgb(255,255,255)  PASS }`;
-      const tapLine = chalk`${prefix}{hidden #} ${label} {grey ${dir}${path.sep}}{bold ${base}}`;
+      const tapLine = chalk`${prefix}{hidden #} ${label} {grey ${this.pathRelativeToRoot(dir)}${path.sep}}{bold ${base}}`;
 
       this.logger.info(tapLine + '\n');
     }
