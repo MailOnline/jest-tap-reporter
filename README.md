@@ -1,5 +1,8 @@
 # jest-tap-reporter
-Jest retporter that outputs [TAP](https://testanything.org/tap-specification.html) results
+
+Jest reporter that outputs valid [TAP](https://testanything.org/tap-specification.html) output and highlights similar to Jest's default reporter.
+
+![jest-tap-reporter exaple](./docs/example.png)
 
 ## Installation
 
@@ -16,6 +19,7 @@ npm install --dev jest-tap-reporter
 ## Usage
 
 #### Add to your jest configuration
+
 ```javascript
 {
   "reporters": [
@@ -25,6 +29,7 @@ npm install --dev jest-tap-reporter
 ```
 
 #### Log levels
+
 By default jest-tap-reporter will log the suite path and a resume at the end of the report. If you reduce the report to the bare minimum you can set the reporter logLevel to error.
 
 ```javascript
@@ -34,3 +39,5 @@ By default jest-tap-reporter will log the suite path and a resume at the end of 
   ]
 }
 ```
+
+Available log levels are: `ERROR`, `WARN`, `INFO`.

@@ -44,7 +44,7 @@ describe('LiveWriter', () => {
       const writer = create();
       let last = writer.getNextNumber();
 
-      for (let j = 0; j < 100; j++) {
+      for (let index = 0; index < 100; index++) {
         const current = writer.getNextNumber();
 
         expect(last + 1).toBe(current);
