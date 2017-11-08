@@ -15,7 +15,7 @@ const create = (root = '/jest-tap-reporter', logger = new Logger()) => {
 const MDASH = '\u2014';
 const CIRCLE = '●';
 
-describe('LiveWriter', () => {
+describe('LineWriter', () => {
   beforeEach(() => {
     chalk.__stripColors();
   });
@@ -440,7 +440,7 @@ describe('LiveWriter', () => {
     });
   });
 
-  describe('plan', () => {
+  describe('.plan()', () => {
     test('prints test plan with supplied test count', () => {
       chalk.__stripColors();
 
