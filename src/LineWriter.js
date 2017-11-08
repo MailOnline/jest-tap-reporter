@@ -127,7 +127,7 @@ class LineWriter {
   }
 
   passed (title) {
-    this.result(chalk`{green ok}`, `${MDASH} ${title}`);
+    this.result(chalk`{green ok}`, title ? `${MDASH} ${title}` : '');
   }
 
   failed (title) {
