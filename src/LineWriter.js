@@ -18,12 +18,7 @@ class LineWriter {
     this.counter = 0;
     this.logger = logger;
     this.root = root;
-  }
-
-  start () {
-    this.blank();
-    this.blank();
-    this.comment(chalk`{green Starting...}`);
+    this.planWritten = false;
   }
 
   getNextNumber () {
@@ -38,6 +33,12 @@ class LineWriter {
 
   comment (line) {
     this.logger.info(formatComment(line));
+  }
+
+  start () {
+    this.blank();
+    this.blank();
+    this.comment(chalk`{green Starting...}`);
   }
 
   commentLight (line) {
@@ -76,8 +77,8 @@ class LineWriter {
     this.keyValue(name, value);
   }
 
-  result (label, title) {
-    this.logger.log(label + chalk` {grey.dim ${this.getNextNumber()}} ${title}`);
+  result (okNotOK, title) {
+    this.logger.log(okNotOK + chalk` {grey.dim ${this.getNextNumber()}} ${title}`);
   }
 
   passed (title) {
@@ -89,7 +90,7 @@ class LineWriter {
   }
 
   pending (title) {
-    this.result(chalk`{yellow ok}`, chalk`{yellow #} {yellow.bold TODO} ${title}`);
+    this.result(chalk`{yellow ok}`, chalk`{yellow #} {yellow.bold SKIP} ${title}`);
   }
 
   getPathRelativeToRoot (filePath) {
@@ -181,7 +182,12 @@ class LineWriter {
   }
 
   plan (count = this.counter) {
+    if (this.planWritten) {
+      throw new Error('TAP test plan can be written only once.');
+    }
+
     this.logger.log(chalk`{bgBlack.rgb(255,255,255) 1..${count}}`);
+    this.planWritten = true;
   }
 }
 
