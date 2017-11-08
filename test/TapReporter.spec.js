@@ -11,51 +11,6 @@ const {
 jest.mock('chalk');
 jest.mock('../src/LineWriter');
 
-const string = {
-  any: expect.stringMatching(/.*/),
-  empty: expect.stringMatching(/(^$)|(\s+$)/),
-  // eslint-disable-next-line no-useless-escape
-  startsWith: (query) => expect.stringMatching(new RegExp('^' + query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')))
-};
-
-const processTestLine = (testLine) => {
-  const parts = testLine.split(' ');
-  const isSuccess = testLine.indexOf('not') !== 0;
-  const status = isSuccess ? parts[0] : `${parts[0]} ${parts[1]}`;
-  const hasDirective = testLine.indexOf('# SKIP') >= 0;
-  const descriptionStartIdx = isSuccess ? 2 : 3;
-
-  let description;
-  let directive;
-  let diagnostics;
-
-  if (hasDirective) {
-    const directiveStartIdx = parts.indexOf('#');
-
-    description = parts.slice(descriptionStartIdx, directiveStartIdx).join(' ');
-    directive = parts.slice(directiveStartIdx).join(' ');
-  } else {
-    description = parts.slice(descriptionStartIdx).join(' ');
-    directive = null;
-  }
-
-  const descriptionsParts = description.split('\n');
-
-  if (descriptionsParts.length > 1) {
-    description = descriptionsParts[0];
-    diagnostics = descriptionsParts.slice(1);
-  } else {
-    diagnostics = null;
-  }
-
-  return {
-    description,
-    diagnostics,
-    directive,
-    status
-  };
-};
-
 describe('TapReporter', () => {
   test('must publish the globalConfig and the options', () => {
     const globalConfig = {};
