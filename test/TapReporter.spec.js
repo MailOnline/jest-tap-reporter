@@ -39,6 +39,7 @@ describe('TapReporter', () => {
       numPendingTestSuites: 0,
       numTotalTests: 0,
       numTotalTestSuites: 0,
+      snapshot: {},
       startTime: Date.now() - 2000
     };
 
@@ -115,6 +116,7 @@ describe('TapReporter', () => {
         numPendingTestSuites: 0,
         numTotalTests: 10,
         numTotalTestSuites: 2,
+        snapshot: {},
         startTime: Date.now() - 2000
       };
 
@@ -137,6 +139,7 @@ describe('TapReporter', () => {
         numPendingTestSuites: 0,
         numTotalTests: 10,
         numTotalTestSuites: 2,
+        snapshot: {},
         startTime: Date.now() - 2000
       };
 
@@ -159,6 +162,7 @@ describe('TapReporter', () => {
         numPendingTestSuites: 0,
         numTotalTests: 10,
         numTotalTestSuites: 2,
+        snapshot: {},
         startTime: Date.now() - 2000
       };
 
@@ -181,6 +185,7 @@ describe('TapReporter', () => {
         numPendingTestSuites: 1,
         numTotalTests: 10,
         numTotalTestSuites: 2,
+        snapshot: {},
         startTime: Date.now() - 2000
       };
 

@@ -80,30 +80,34 @@ class TapReporter {
     this.onRunStartOptions = options;
   }
 
-  onRunComplete (contexts, results) {
+  onRunComplete (contexts, aggregatedResults) {
     const {estimatedTime} = this.onRunStartOptions;
-    const {
-      numFailedTestSuites,
-      numFailedTests,
-      numPassedTestSuites,
-      numPassedTests,
-      numPendingTestSuites,
-      numPendingTests,
-      numTotalTestSuites,
-      numTotalTests,
-      snapshot,
-      startTime
-    } = results;
 
-    this[sShouldFail] = numFailedTestSuites > 0 || numFailedTests > 0;
+    const snapshotResults = aggregatedResults.snapshot;
+    const snapshotsAdded = snapshotResults.added;
+    const snapshotsFailed = snapshotResults.unmatched;
+    const snapshotsPassed = snapshotResults.matched;
+    const snapshotsTotal = snapshotResults.total;
+    const snapshotsUpdated = snapshotResults.updated;
+    const suitesFailed = aggregatedResults.numFailedTestSuites;
+    const suitesPassed = aggregatedResults.numPassedTestSuites;
+    const suitesPending = aggregatedResults.numPendingTestSuites;
+    const suitesTotal = aggregatedResults.numTotalTestSuites;
+    const testsFailed = aggregatedResults.numFailedTests;
+    const testsPassed = aggregatedResults.numPassedTests;
+    const testsPending = aggregatedResults.numPendingTests;
+    const testsTotal = aggregatedResults.numTotalTests;
+    const startTime = aggregatedResults.startTime;
+
+    this[sShouldFail] = testsFailed > 0 || suitesFailed > 0;
 
     this.writer.blank();
     this.writer.plan();
     this.writer.blank();
-    this.writer.stats('Test Suites', numFailedTestSuites, numPendingTestSuites, numPassedTestSuites, numTotalTestSuites);
-    this.writer.stats('Tests', numFailedTests, numPendingTests, numPassedTests, numTotalTests);
-    if (snapshot) {
-      this.writer.stats('Snapshots', snapshot.total - snapshot.matched - snapshot.added, 0, snapshot.matched + snapshot.added, snapshot.total);
+    this.writer.stats('Test Suites', suitesFailed, suitesPending, suitesPassed, suitesTotal);
+    this.writer.stats('Tests', testsFailed, testsPending, testsPassed, testsTotal);
+    if (snapshotsTotal) {
+      this.writer.snapshots(snapshotsFailed, snapshotsUpdated, snapshotsAdded, snapshotsPassed, snapshotsTotal);
     }
     this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s, estimated ${estimatedTime}s`);
     this.writer.commentLight('Ran all test suites.');

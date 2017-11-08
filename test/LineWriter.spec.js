@@ -192,6 +192,20 @@ describe('LiveWriter', () => {
     });
   });
 
+  describe('.snapshots()', () => {
+    describe('when all values are greater than zero', () => {
+      test('prints them all', () => {
+        const writer = create();
+
+        writer.keyValue = jest.fn();
+        writer.snapshots(1, 1, 1, 1, 4);
+
+        expect(writer.keyValue).toHaveBeenCalledTimes(1);
+        expect(writer.keyValue.mock.calls[0]).toMatchSnapshot();
+      });
+    });
+  });
+
   describe('.result()', () => {
     test('logs passed test', () => {
       const writer = create();

@@ -33,6 +33,13 @@ exports[`LiveWriter .passed() colors "ok" green 1`] = `"{green ok}"`;
 
 exports[`LiveWriter .pending() colors "ok" yellow 1`] = `"{yellow ok}"`;
 
+exports[`LiveWriter .snapshots() when all values are greater than zero prints them all 1`] = `
+Array [
+  "Snapshots",
+  "1 failed, 1 updated, 1 added, 1 passed, 4 total",
+]
+`;
+
 exports[`LiveWriter .start() prints start message 1`] = `
 Array [
   Array [

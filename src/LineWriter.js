@@ -9,6 +9,17 @@ const REG_ERROR = /^\s*Error:\s*/;
 const MDASH = '\u2014';
 const CIRCLE = '●';
 
+const FAIL_TEXT = 'FAIL';
+const PASS_TEXT = 'PASS';
+
+const FAIL = chalk.supportsColor ?
+  chalk`{reset.inverse.bold.red  ${FAIL_TEXT} }` :
+  ` ${FAIL_TEXT} `;
+
+const PASS = chalk.supportsColor ?
+  chalk`{reset.inverse.bold.green  ${PASS_TEXT} }` :
+  ` ${PASS_TEXT} `;
+
 const formatComment = (line) => chalk`{hidden #} ${line}`;
 const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
   chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
@@ -52,29 +63,63 @@ class LineWriter {
     this.comment(chalk`{black.bold ${keyFormatted}} ${value}`);
   }
 
-  stats (name, failed, skipped, passed, total, names = {
-    failed: 'failed',
-    passed: 'passed',
-    skipped: 'skipped',
-    total: 'total'
-  }) {
+  keyValueList (key, list) {
     let value = '';
+
+    for (const [label, style, num] of list) {
+      value += (value ? ', ' : '') + chalk`{${style} ${num} ${label}}`;
+    }
+
+    this.keyValue(key, value);
+  }
+
+  stats (name, failed, skipped, passed, total) {
+    const list = [];
 
     if (total) {
       if (failed) {
-        value += (value ? ', ' : '') + chalk`{red.bold ${failed} ${names.failed}}`;
+        list.push(['failed', 'red.bold', failed]);
       }
 
       if (skipped) {
-        value += (value ? ', ' : '') + chalk`{yellow.bold ${skipped} ${names.skipped}}`;
+        list.push(['skipped', 'yellow.bold', skipped]);
       }
 
-      value += (value ? ', ' : '') + chalk`{green.bold ${passed} ${names.passed}}`;
+      if (passed) {
+        list.push(['passed', 'green.bold', passed]);
+      }
     }
 
-    value += `${total ? ', ' : ''}${total} ${names.total}`;
+    list.push(['total', 'reset', total]);
+    this.keyValueList(name, list);
+  }
 
-    this.keyValue(name, value);
+  snapshots (failed, updated, added, passed, total) {
+    if (!total) {
+      return;
+    }
+
+    const list = [];
+
+    if (failed) {
+      list.push(['failed', 'red.bold', failed]);
+    }
+
+    if (updated) {
+      list.push(['updated', 'yellow.bold', updated]);
+    }
+
+    if (added) {
+      list.push(['added', 'green.bold', added]);
+    }
+
+    if (passed) {
+      list.push(['passed', 'green.bold', passed]);
+    }
+
+    list.push(['total', 'reset', total]);
+
+    this.keyValueList('Snapshots', list);
   }
 
   result (okNotOK, title) {
@@ -174,9 +219,7 @@ class LineWriter {
   }
 
   suite (isFail, dir, base) {
-    const label = isFail ?
-      chalk`{bgRed.rgb(255,255,255).bold  FAIL }` :
-      chalk`{bgGreen.rgb(255,255,255).bold  PASS }`;
+    const label = isFail ? FAIL : PASS;
 
     this.comment(chalk`${label} {grey ${this.getPathRelativeToRoot(dir)}${path.sep}}{bold ${base}}`);
   }
@@ -186,7 +229,7 @@ class LineWriter {
       throw new Error('TAP test plan can be written only once.');
     }
 
-    this.logger.log(chalk`{bgBlack.rgb(255,255,255) 1..${count}}`);
+    this.logger.log(chalk`{reset.inverse 1..${count}}`);
     this.planWritten = true;
   }
 }
