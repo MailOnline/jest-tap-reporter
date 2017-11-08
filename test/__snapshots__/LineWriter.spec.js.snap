@@ -8,6 +8,17 @@ Array [
 ]
 `;
 
+exports[`LiveWriter .errors() format stack trace 1`] = `
+"#   
+#   foobar
+#   
+#   Stack trace:
+#   
+#       at Something (../foo/bar.js:10:10)
+#       at Foobar (../foo/bar2.js:20:20)
+#   "
+`;
+
 exports[`LiveWriter .failed() colors "not ok" red 1`] = `"{red not ok}"`;
 
 exports[`LiveWriter .keyValue() prints key-value pair 1`] = `

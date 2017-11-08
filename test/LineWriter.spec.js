@@ -315,6 +315,53 @@ describe('LiveWriter', () => {
     });
   });
 
+  describe('.errors()', () => {
+    test('logs using STDERR', () => {
+      const writer = create();
+
+      writer.logger.error = jest.fn();
+      writer.errors(['Error: foobar']);
+
+      expect(writer.logger.error).toHaveBeenCalledTimes(1);
+    });
+
+    test('strips "Error:" leading text', () => {
+      chalk.__stripColors();
+
+      const writer = create();
+
+      writer.logger.error = jest.fn();
+      writer.errors([
+        'Error: foobar' +
+        '\n' +
+        'at Something (/foo/bar.js:10:10)'
+      ]);
+
+      expect(writer.logger.error).toHaveBeenCalledTimes(1);
+      expect(writer.logger.error.mock.calls[0][0]).not.toMatch('.*Error:.*');
+      expect(writer.logger.error.mock.calls[0][0]).not.toMatch('.*foobar.*');
+    });
+
+    test('format stack trace', () => {
+      chalk.__stripColors();
+
+      const writer = create();
+
+      writer.logger.error = jest.fn();
+      writer.errors([
+        'Error: foobar' +
+        '\n' +
+        'at Something (/foo/bar.js:10:10)' +
+        '\n' +
+        'at Foobar (/foo/bar2.js:20:20)'
+      ]);
+
+      expect(writer.logger.error).toHaveBeenCalledTimes(1);
+      expect(writer.logger.error.mock.calls[0][0]).not.toMatch('.*Stack trace.*');
+      expect(writer.logger.error.mock.calls[0][0]).toMatchSnapshot();
+    });
+  });
+
   describe('.suite()', () => {
     test('prints test suite result', () => {
       chalk.__stripColors();
