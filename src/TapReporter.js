@@ -21,6 +21,9 @@ class TapReporter {
     this.writer = new LineWriter(this.logger, globalConfig.rootDir);
     this.onAssertionResult = this.onAssertionResult.bind(this);
 
+    this.onRunStartResults = {};
+    this.onRunStartOptions = {};
+
     this.writer.start();
   }
 
@@ -99,7 +102,9 @@ class TapReporter {
     this.writer.blank();
     this.writer.stats('Test Suites', numFailedTestSuites, numPendingTestSuites, numPassedTestSuites, numTotalTestSuites);
     this.writer.stats('Tests', numFailedTests, numPendingTests, numPassedTests, numTotalTests);
-    this.writer.stats('Snapshots', snapshot.total - snapshot.matched - snapshot.added, 0, snapshot.matched + snapshot.added, snapshot.total);
+    if (snapshot) {
+      this.writer.stats('Snapshots', snapshot.total - snapshot.matched - snapshot.added, 0, snapshot.matched + snapshot.added, snapshot.total);
+    }
     this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s, estimated ${estimatedTime}s`);
     this.writer.commentLight('Ran all test suites.');
     this.writer.blank();
