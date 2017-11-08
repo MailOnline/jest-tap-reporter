@@ -51,22 +51,27 @@ class LineWriter {
     this.comment(chalk`{black.bold ${keyFormatted}} ${value}`);
   }
 
-  stats (name, failed, skipped, passed, total) {
+  stats (name, failed, skipped, passed, total, names = {
+    failed: 'failed',
+    passed: 'passed',
+    skipped: 'skipped',
+    total: 'total'
+  }) {
     let value = '';
 
     if (total) {
       if (failed) {
-        value += (value ? ', ' : '') + chalk`{red.bold ${failed} failed}`;
+        value += (value ? ', ' : '') + chalk`{red.bold ${failed} ${names.failed}}`;
       }
 
       if (skipped) {
-        value += (value ? ', ' : '') + chalk`{yellow.bold ${skipped} skipped}`;
+        value += (value ? ', ' : '') + chalk`{yellow.bold ${skipped} ${names.skipped}}`;
       }
 
-      value += (value ? ', ' : '') + chalk`{green.bold ${passed} passed}`;
+      value += (value ? ', ' : '') + chalk`{green.bold ${passed} ${names.passed}}`;
     }
 
-    value += `${total ? ', ' : ''}${total} total`;
+    value += `${total ? ', ' : ''}${total} ${names.total}`;
 
     this.keyValue(name, value);
   }
@@ -159,6 +164,10 @@ class LineWriter {
       chalk`{bgGreen.rgb(255,255,255).bold  PASS }`;
 
     this.comment(chalk`${label} {grey ${this.getPathRelativeToRoot(dir)}${path.sep}}{bold ${base}}`);
+  }
+
+  plan (count = this.counter) {
+    this.logger.log(chalk`{bgBlack.rgb(255,255,255) 1..${count}}`);
   }
 }
 

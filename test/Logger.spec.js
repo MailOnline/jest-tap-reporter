@@ -9,17 +9,9 @@ describe('Logger', () => {
 
   /* eslint-disable no-console */
   test('must use console.log as default log function', () => {
-    const realLog = console.log;
-
-    console.log = jest.fn();
     const logger = new Logger();
 
-    logger.log('foo', 'bar');
-
-    expect(console.log).toHaveBeenCalledTimes(1);
-    expect(console.log).toHaveBeenCalledWith('foo', 'bar');
-
-    console.log = realLog;
+    expect(logger.log).toBe(console.log);
   });
   /* eslint-enable no-console */
 
@@ -55,7 +47,7 @@ describe('Logger', () => {
   test('must throw if you try to change the level with an unknown one', () => {
     const logger = new Logger();
 
-    expect(() => logger.setLevel('asfasdfsadf')).toThrow(TypeError);
+    expect(() => logger.setLevel('asfasdfsadf')).toThrow(Error);
     expect(() => logger.setLevel(23423)).toThrow(TypeError);
     expect(() => logger.setLevel()).toThrow(TypeError);
   });

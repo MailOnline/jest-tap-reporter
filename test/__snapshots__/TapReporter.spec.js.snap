@@ -16,6 +16,14 @@ Array [
 ]
 `;
 
+exports[`TapReporter onTestResults must output skipped tests 1`] = `
+Array [
+  Array [
+    "{rgb(80,80,80) must log an error if there is a problem processing the results}",
+  ],
+]
+`;
+
 exports[`TapReporter onTestResults suite log must output a suite log with the Suites filePath if possible 1`] = `
 Array [
   Array [

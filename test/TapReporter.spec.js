@@ -118,50 +118,34 @@ describe('TapReporter', () => {
         expect(tapReporter.writer.suite.mock.calls).toMatchSnapshot();
       });
     });
-  });
 
-/*
-  test('onTestResults must output skipped tests', () => {
-    const tapReporter = new TapReporter();
+    test('must output skipped tests', () => {
+      const tapReporter = new TapReporter();
 
-    console.log.mockClear();
+      tapReporter.onTestResult({}, skippedTestSuite);
 
-    tapReporter.onTestResult({}, skippedTestSuite);
+      expect(tapReporter.writer.pending).toHaveBeenCalledTimes(1);
+      expect(tapReporter.writer.pending.mock.calls).toMatchSnapshot();
+    });
 
-    expect(console.log).toHaveBeenCalledTimes(1);
+    test.only('TapReporter onTestResults must output all the tests on a suite tests', () => {
+      const tapReporter = new TapReporter();
 
-    const {
-      description,
-      diagnostics,
-      directive,
-      status
-    } = processTestLine(console.log.mock.calls[0][0]);
+      tapReporter.onTestResult({}, severalTestsSuite);
 
-    expect(status).toBe('ok');
-    expect(description).not.toBe(string.notEmpty);
-    expect(directive).toBe('# SKIP');
-    expect(diagnostics).toBeNull();
-  });
+      const testLines = console.log.mock.calls.map((call) => call[0]);
 
-  test('TapReporter onTestResults must output all the tests on a suite tests', () => {
-    const tapReporter = new TapReporter();
+      testLines.forEach((testLine) => {
+        const {
+          description,
+          directive,
+          status
+        } = processTestLine(testLine);
 
-    console.log.mockClear();
-
-    tapReporter.onTestResult({}, severalTestsSuite);
-
-    const testLines = console.log.mock.calls.map((call) => call[0]);
-
-    testLines.forEach((testLine) => {
-      const {
-        description,
-        directive,
-        status
-      } = processTestLine(testLine);
-
-      expect(status).toBe('ok');
-      expect(description).not.toBe(string.notEmpty);
-      expect(directive).toBeNull();
+        expect(status).toBe('ok');
+        expect(description).not.toBe(string.notEmpty);
+        expect(directive).toBeNull();
+      });
     });
   });
 
@@ -306,5 +290,4 @@ describe('TapReporter', () => {
     tapReporter = new TapReporter();
     expect(tapReporter.getLastError()).toBe(undefined);
   });
-  */
 });

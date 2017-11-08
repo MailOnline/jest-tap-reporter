@@ -52,7 +52,7 @@
   ],
   "endTime":1500478996335,
   "message":"",
-  "name":"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js",
+  "name":"/jest-tap-reporter/test/index.spec.js",
   "startTime":1500478996144,
   "status":"passed",
   "summary":""

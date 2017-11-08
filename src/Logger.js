@@ -7,41 +7,45 @@ const LEVELS = {
 /* eslint-enable sort-keys */
 
 // eslint-disable-next-line no-console
-const DEFAULT_LOG = (...args) => console.log(...args);
-const level = Symbol('level');
+const DEFAULT_LOG = console.log;
+const sLevel = Symbol('level');
 
 class Logger {
-  constructor ({log = DEFAULT_LOG, logLevel} = {}) {
+  constructor ({log = DEFAULT_LOG, logLevel = 'INFO'} = {}) {
     this.log = log;
-    this.setLevel(logLevel || 'INFO');
+    this.setLevel(logLevel);
   }
 
-  setLevel (newLevel) {
-    if (typeof LEVELS[newLevel] === 'undefined') {
-      throw new TypeError('Unknown level');
+  setLevel (levelName) {
+    if (typeof levelName !== 'string') {
+      throw new TypeError('Level must be a string');
     }
 
-    this[level] = LEVELS[newLevel];
+    if (!LEVELS[levelName]) {
+      throw new Error('Unknown level');
+    }
+
+    this[sLevel] = LEVELS[levelName];
   }
 
   getLevel () {
-    return Object.keys(LEVELS).filter((key) => LEVELS[key] === this[level])[0];
+    return Object.keys(LEVELS).filter((key) => LEVELS[key] === this[sLevel])[0];
   }
 
   info (...args) {
-    if (this[level] >= LEVELS.INFO) {
+    if (this[sLevel] >= LEVELS.INFO) {
       this.log(...args);
     }
   }
 
   warn (...args) {
-    if (this[level] >= LEVELS.WARN) {
+    if (this[sLevel] >= LEVELS.WARN) {
       this.log(...args);
     }
   }
 
   error (...args) {
-    if (this[level] >= LEVELS.ERROR) {
+    if (this[sLevel] >= LEVELS.ERROR) {
       this.log(...args);
     }
   }

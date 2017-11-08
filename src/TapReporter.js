@@ -8,17 +8,16 @@ const STATUS_PASSED = 'passed';
 const STATUS_FAILED = 'failed';
 const STATUS_PENDING = 'pending';
 
+const sShouldFail = Symbol('shouldFail');
+
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
 
-    this._globalConfig = globalConfig;
-    this._options = options;
-    this._shouldFail = false;
-    this._watch = this._globalConfig.watch;
-    this.logger = new Logger({
-      logLevel
-    });
+    this.globalConfig = globalConfig;
+    this.options = options;
+    this[sShouldFail] = false;
+    this.logger = new Logger({logLevel});
     this.writer = new LineWriter(this.logger, globalConfig.rootDir);
     this.onAssertionResult = this.onAssertionResult.bind(this);
 
@@ -26,7 +25,7 @@ class TapReporter {
   }
 
   pathRelativeToRoot (filePath) {
-    return path.relative(this._globalConfig.rootDir, filePath);
+    return path.relative(this.globalConfig.rootDir, filePath);
   }
 
   onAssertionResult (assertiontResult) {
@@ -40,7 +39,7 @@ class TapReporter {
 
     switch (status) {
     case STATUS_PASSED:
-      if (!this._watch) {
+      if (!this.globalConfig.watch) {
         this.writer.passed(formattedTitle);
       }
       break;
@@ -63,7 +62,7 @@ class TapReporter {
     if (testFilePath) {
       const {dir, base} = path.parse(testFilePath);
 
-      if (!this._watch) {
+      if (!this.globalConfig.watch) {
         this.writer.blank();
       }
       this.writer.suite(numFailingTests > 0, dir, base);
@@ -93,8 +92,10 @@ class TapReporter {
       startTime
     } = results;
 
-    this._shouldFail = numFailedTestSuites > 0 || numFailedTests > 0;
+    this[sShouldFail] = numFailedTestSuites > 0 || numFailedTests > 0;
 
+    this.writer.blank();
+    this.writer.plan();
     this.writer.blank();
     this.writer.stats('Test Suites', numFailedTestSuites, numPendingTestSuites, numPassedTestSuites, numTotalTestSuites);
     this.writer.stats('Tests', numFailedTests, numPendingTests, numPassedTests, numTotalTests);
@@ -105,7 +106,7 @@ class TapReporter {
   }
 
   getLastError () {
-    if (this._shouldFail) {
+    if (this[sShouldFail]) {
       return new Error('TAP Reporter: failing tests found');
     }
 
