@@ -98,11 +98,13 @@ class LineWriter {
 
   formatFailureMessage (message) {
     const [firstLine, ...lines] = message.split('\n');
-    const formattedLines = [];
+    const outputLines = [];
     const whitespace = '  ';
 
-    const push = (line) => formattedLines.push(formatComment(whitespace + line));
-    const pushTraceLine = (line) => push(chalk`  {grey ${line}}`);
+    const push = (line) => {
+      outputLines.push(line);
+    };
+    const pushTraceLine = (line) => push(chalk`    {grey ${line}}`);
     const pushTraceLineDim = (line) => pushTraceLine(chalk`{dim ${line}}`);
 
     let firstLineFormatted = firstLine;
@@ -115,9 +117,22 @@ class LineWriter {
     push('');
 
     let internalsStarted = false;
+    let isFirstTraceLine = true;
 
     for (const line of lines) {
       if (line.match(REG_AT)) {
+        if (isFirstTraceLine) {
+          isFirstTraceLine = false;
+
+          const isLastLineBlank = outputLines[outputLines.length - 1] === '';
+
+          if (!isLastLineBlank) {
+            push('');
+          }
+          push(chalk`{bold.dim Stack trace:}`);
+          push('');
+        }
+
         const matches = line.match(REG_TRACE_LINE);
 
         if (matches) {
@@ -139,13 +154,12 @@ class LineWriter {
         }
       } else {
         push(line);
-        push('');
       }
     }
 
     push('');
 
-    return formattedLines.join('\n');
+    return outputLines.map((line) => formatComment(whitespace + line)).join('\n');
   }
 
   errors (messages) {

@@ -72,14 +72,8 @@ describe('TapReporter', () => {
     const options = {};
     const tapReporter = new TapReporter(globalConfig, options);
 
-    expect(tapReporter._globalConfig).toBe(globalConfig);
-    expect(tapReporter._options).toBe(options);
-  });
-
-  test('must set _shouldFail to false by default', () => {
-    const tapReporter = new TapReporter();
-
-    expect(tapReporter._shouldFail).toBe(false);
+    expect(tapReporter.globalConfig).toBe(globalConfig);
+    expect(tapReporter.options).toBe(options);
   });
 
   test('must log the start of the tests', () => {
@@ -128,7 +122,7 @@ describe('TapReporter', () => {
       expect(tapReporter.writer.pending.mock.calls).toMatchSnapshot();
     });
 
-    test.only('TapReporter onTestResults must output all the tests on a suite tests', () => {
+    test('must output all the tests on a suite tests', () => {
       const tapReporter = new TapReporter();
 
       tapReporter.onTestResult({}, severalTestsSuite);
