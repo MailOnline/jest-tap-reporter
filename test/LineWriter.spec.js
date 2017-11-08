@@ -16,6 +16,10 @@ const MDASH = '\u2014';
 const CIRCLE = '●';
 
 describe('LiveWriter', () => {
+  beforeEach(() => {
+    chalk.__stripColors();
+  });
+
   test('is a function', () => {
     expect(typeof LineWriter).toBe('function');
   });
@@ -130,6 +134,25 @@ describe('LiveWriter', () => {
     });
   });
 
+  describe('.keyValueList()', () => {
+    test('formats 3-tuple list into a value and calls .keyValue()', () => {
+      chalk.__showTemplates();
+
+      const writer = create();
+
+      writer.keyValue = jest.fn();
+      writer.keyValueList('foo', [
+        ['name1', 'styles1', 1],
+        ['name2', 'styles2', 2],
+        ['name3', 'styles3', 3],
+        ['name4', 'styles4', 4]
+      ]);
+
+      expect(writer.keyValue).toHaveBeenCalledTimes(1);
+      expect(writer.keyValue.mock.calls[0]).toMatchSnapshot();
+    });
+  });
+
   describe('.stats()', () => {
     describe('when zero tests', () => {
       test('shows only total zero', () => {
@@ -193,6 +216,17 @@ describe('LiveWriter', () => {
   });
 
   describe('.snapshots()', () => {
+    describe('when no snapshots exit', () => {
+      test('should not print anything', () => {
+        const writer = create();
+
+        writer.keyValue = jest.fn();
+        writer.snapshots(0, 0, 0, 0, 0);
+
+        expect(writer.keyValue).toHaveBeenCalledTimes(0);
+      });
+    });
+
     describe('when all values are greater than zero', () => {
       test('prints them all', () => {
         const writer = create();

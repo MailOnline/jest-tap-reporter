@@ -29,6 +29,13 @@ Array [
 ]
 `;
 
+exports[`LiveWriter .keyValueList() formats 3-tuple list into a value and calls .keyValue() 1`] = `
+Array [
+  "foo",
+  "{styles1 1 name1}, {styles2 2 name2}, {styles3 3 name3}, {styles4 4 name4}",
+]
+`;
+
 exports[`LiveWriter .passed() colors "ok" green 1`] = `"{green ok}"`;
 
 exports[`LiveWriter .pending() colors "ok" yellow 1`] = `"{yellow ok}"`;
