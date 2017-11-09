@@ -5,8 +5,9 @@
 [npm-badge]: https://img.shields.io/npm/v/jest-tap-reporter.svg
 [npm]: https://www.npmjs.com/package/jest-tap-reporter
 [license-badge]: https://img.shields.io/badge/license-MIT-orange.svg
+[license]: ./LICENSE
 
-[![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] ![License][license-badge]
+[![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] [![License][license-badge]][license]
 
 Jest reporter that outputs valid [TAP](https://testanything.org/tap-specification.html) output and highlights similar to Jest's default reporter.
 
@@ -60,4 +61,4 @@ Available log levels are: `ERROR`, `WARN`, `INFO`.
 
 ## License
 
-MIT, see [LICENSE.md](./LICENSE.md).
+MIT, see [LICENSE.md](./LICENSE).
