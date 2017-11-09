@@ -23,7 +23,7 @@ npm install --dev jest-tap-reporter
 ```javascript
 {
   "reporters": [
-    "<rootDir>/node_modules/jest-tap-reporter"
+    "jest-tap-reporter"
   ]
 }
 ```
@@ -35,7 +35,7 @@ By default jest-tap-reporter will log the suite path and a resume at the end of 
 ```javascript
 {
   "reporters": [
-    ["<rootDir>/node_modules/jest-tap-reporter", {"logLevel": "ERROR"}]
+    ["jest-tap-reporter", {"logLevel": "ERROR"}]
   ]
 }
 ```
