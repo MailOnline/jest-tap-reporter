@@ -17,6 +17,9 @@ test('', () => {
 
 test('skipped test');
 
+// eslint-disable-next-line jest/no-disabled-tests
+xit('a sample todo test', () => {});
+
 describe('Foobar', () => {
   test('sample test that succeeds', () => {});
 

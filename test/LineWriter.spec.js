@@ -110,6 +110,16 @@ describe('LineWriter', () => {
 
       expect(writer.logger.info.mock.calls).toMatchSnapshot();
     });
+
+    test('prints start message with suite number if provided', () => {
+      chalk.__stripColors();
+
+      const writer = create();
+
+      writer.start(3);
+
+      expect(writer.logger.info.mock.calls).toMatchSnapshot();
+    });
   });
 
   describe('.commentLight()', () => {
@@ -386,8 +396,8 @@ describe('LineWriter', () => {
       ]);
 
       expect(writer.logger.error).toHaveBeenCalledTimes(1);
-      expect(writer.logger.error.mock.calls[0][0]).not.toMatch('.*Error:.*');
-      expect(writer.logger.error.mock.calls[0][0]).not.toMatch('.*foobar.*');
+      expect(writer.logger.error.mock.calls[0][0].includes('Error:')).toBe(false);
+      expect(writer.logger.error.mock.calls[0][0].includes('foobar')).toBe(true);
     });
 
     test('format stack trace', () => {

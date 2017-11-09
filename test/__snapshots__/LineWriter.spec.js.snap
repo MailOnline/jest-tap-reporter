@@ -61,6 +61,23 @@ Array [
 ]
 `;
 
+exports[`LineWriter .start() prints start message with suite number if provided 1`] = `
+Array [
+  Array [
+    "",
+  ],
+  Array [
+    "",
+  ],
+  Array [
+    "# Starting...",
+  ],
+  Array [
+    "# 3 test suites found.",
+  ],
+]
+`;
+
 exports[`LineWriter .stats() when all tests pass shows only passed and total tests 1`] = `
 Array [
   "foo",

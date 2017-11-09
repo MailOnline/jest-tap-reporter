@@ -46,10 +46,14 @@ class LineWriter {
     this.logger.info(formatComment(line));
   }
 
-  start () {
+  start (numSuites) {
     this.blank();
     this.blank();
     this.comment(chalk`{green Starting...}`);
+
+    if (numSuites) {
+      this.commentLight(`${numSuites} test suites found.`);
+    }
   }
 
   commentLight (line) {
@@ -60,7 +64,7 @@ class LineWriter {
     // eslint-disable-next-line no-use-extend-native/no-use-extend-native
     const keyFormatted = (key + ':').padEnd(12, ' ');
 
-    this.comment(chalk`{black.bold ${keyFormatted}} ${value}`);
+    this.comment(chalk`{bold ${keyFormatted}} ${value}`);
   }
 
   keyValueList (key, list) {

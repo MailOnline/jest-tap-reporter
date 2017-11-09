@@ -17,14 +17,11 @@ class TapReporter {
     this.globalConfig = globalConfig;
     this.options = options;
     this[sShouldFail] = false;
-    this.logger = new Logger({logLevel});
-    this.writer = new LineWriter(this.logger, globalConfig.rootDir);
+    this.writer = new LineWriter(new Logger({logLevel}), globalConfig.rootDir);
     this.onAssertionResult = this.onAssertionResult.bind(this);
 
     this.onRunStartResults = {};
     this.onRunStartOptions = {};
-
-    this.writer.start();
   }
 
   pathRelativeToRoot (filePath) {
@@ -55,7 +52,10 @@ class TapReporter {
       this.writer.errors(failureMessages);
       break;
     default:
-      this.commentLight(chalk`{italic Unknown status: ${status}}`);
+
+      // eslint-disable-next-line no-warning-comments
+      // TODO: add tests for this and reconsider in general what to do in the default case.
+      this.writer.commentLight(chalk`{italic Unknown status: ${status}}`);
     }
   }
 
@@ -76,8 +76,9 @@ class TapReporter {
   }
 
   onRunStart (results, options) {
-    this.onRunStartResults = results;
     this.onRunStartOptions = options;
+
+    this.writer.start(results.numTotalTestSuites);
   }
 
   onRunComplete (contexts, aggregatedResults) {
@@ -109,7 +110,7 @@ class TapReporter {
     if (snapshotsTotal) {
       this.writer.snapshots(snapshotsFailed, snapshotsUpdated, snapshotsAdded, snapshotsPassed, snapshotsTotal);
     }
-    this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s, estimated ${estimatedTime}s`);
+    this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s` + (estimatedTime ? `, estimated ${estimatedTime}s` : ''));
     this.writer.commentLight('Ran all test suites.');
     this.writer.blank();
   }

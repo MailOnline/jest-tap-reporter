@@ -4,7 +4,7 @@
   "description": "Jest TAP reporter",
   "main": "index.js",
   "scripts": {
-    "test": "jest --no-cache",
+    "test": "jest",
     "demo": "jest --testPathPattern 'demo/.+\\.test\\.js' --testRegex 'demo/.+\\.test\\.js'",
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
     "precommit": "npm run lint",

@@ -24,6 +24,8 @@ describe('TapReporter', () => {
   test('must log the start of the tests', () => {
     const tapReporter = new TapReporter();
 
+    tapReporter.onRunStart({}, {});
+
     expect(tapReporter.writer.start).toHaveBeenCalledTimes(1);
     expect(tapReporter.writer.start).not.toHaveBeenCalledTimes(2);
   });
