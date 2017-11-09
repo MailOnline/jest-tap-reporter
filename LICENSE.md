@@ -1,7 +1,7 @@
 The MIT License
 ===============
 
-Copyright ${year} ${name} (${url}), contributors
+Copyright 2017 @MailOnline (https://github.com/MailOnline), contributors
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
