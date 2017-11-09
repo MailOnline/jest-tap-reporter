@@ -4,7 +4,7 @@
 [travis]: https://travis-ci.org/MailOnline/jest-tap-reporter
 [npm-badge]: https://img.shields.io/npm/v/jest-tap-reporter.svg
 [npm]: https://www.npmjs.com/package/jest-tap-reporter
-[license-badge]: https://img.shields.io/badge/license-MIT-green.svg
+[license-badge]: https://img.shields.io/badge/license-MIT-orange.svg
 
 [![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] ![License][license-badge]
 
@@ -38,7 +38,8 @@ npm install --dev jest-tap-reporter
 
 #### Log levels
 
-By default jest-tap-reporter will log the suite path and a resume at the end of the report. If you reduce the report to the bare minimum you can set the reporter logLevel to error.
+By default jest-tap-reporter uses `INFO` log level, which will log the suite path and a summary at the end of a test run.
+If you want to reduce the reporting to bare minimum you can set the `logLevel` parameter to `ERROR`.
 
 ```javascript
 {
@@ -49,3 +50,7 @@ By default jest-tap-reporter will log the suite path and a resume at the end of 
 ```
 
 Available log levels are: `ERROR`, `WARN`, `INFO`.
+
+## License
+
+MIT, see [LICENSE.md](./LICENSE.md).
