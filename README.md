@@ -10,7 +10,14 @@
 
 Jest reporter that outputs valid [TAP](https://testanything.org/tap-specification.html) output and highlights similar to Jest's default reporter.
 
-![jest-tap-reporter exaple](./docs/example.png)
+
+Mac terminal sample output:
+
+![jest-tap-reporter exaple Mac](./docs/example-mac.png)
+
+VS Code sample output:
+
+![jest-tap-reporter exaple VS Code](./docs/example-vscode.png)
 
 ## Installation
 
