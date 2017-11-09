@@ -1,5 +1,6 @@
 const path = require('path');
 const chalk = require('chalk');
+const progressBar = require('./progressBar');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
 const REG_INTERNALS = /^(node_modules|internal)\//;
@@ -23,6 +24,21 @@ const PASS = chalk.supportsColor ?
 const formatComment = (line) => chalk`{hidden #} ${line}`;
 const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
   chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
+const formatStatsBar = (percent, hasErrors) => {
+  // eslint-disable-next-line no-use-extend-native/no-use-extend-native
+  const percentFormatted = (Math.round(100 * percent) + '%').padStart(3, ' ').padEnd(4, ' ');
+  const bar = progressBar(percent, hasErrors ? 'red' : 'grey.dim');
+
+  let textStyles = 'green';
+
+  if (hasErrors) {
+    textStyles = 'red.bold';
+  } else if (percent < 1) {
+    textStyles = 'yellow';
+  }
+
+  return chalk`{${textStyles} ${percentFormatted}} ${bar}`;
+};
 
 class LineWriter {
   constructor (logger, root) {
@@ -60,41 +76,46 @@ class LineWriter {
     this.comment(chalk`{dim ${line}}`);
   }
 
-  keyValue (key, value) {
+  keyValue (key, value, prefix = '') {
     // eslint-disable-next-line no-use-extend-native/no-use-extend-native
     const keyFormatted = (key + ':').padEnd(12, ' ');
 
-    this.comment(chalk`{bold ${keyFormatted}} ${value}`);
+    this.comment(chalk`${prefix}{bold ${keyFormatted}} ${value}`);
   }
 
-  keyValueList (key, list) {
+  keyValueList (key, list, prefix = '') {
     let value = '';
 
-    for (const [label, style, num] of list) {
-      value += (value ? ', ' : '') + chalk`{${style} ${num} ${label}}`;
+    for (const item of list) {
+      value += (value ? ', ' : '') + item;
     }
 
-    this.keyValue(key, value);
+    this.keyValue(key, value, prefix);
   }
 
   stats (name, failed, skipped, passed, total) {
     const list = [];
 
     if (total) {
+      const bar = formatStatsBar(passed / total, passed + skipped < total);
+
+      list.push(bar);
+
       if (failed) {
-        list.push(['failed', 'red.bold', failed]);
+        list.push(chalk`{red.bold ${failed} failed}`);
       }
 
       if (skipped) {
-        list.push(['skipped', 'yellow.bold', skipped]);
+        list.push(chalk`{yellow.bold ${skipped} skipped}`);
       }
 
       if (passed) {
-        list.push(['passed', 'green.bold', passed]);
+        list.push(chalk`{green.bold ${passed} passed}`);
       }
     }
 
-    list.push(['total', 'reset', total]);
+    list.push(chalk`{reset ${total} total}`);
+
     this.keyValueList(name, list);
   }
 
@@ -105,23 +126,28 @@ class LineWriter {
 
     const list = [];
 
+    const percent = passed / total;
+    const bar = formatStatsBar(percent, percent < 1 && !updated);
+
+    list.push(bar);
+
     if (failed) {
-      list.push(['failed', 'red.bold', failed]);
+      list.push(chalk`{red.bold ${failed} failed}`);
     }
 
     if (updated) {
-      list.push(['updated', 'yellow.bold', updated]);
+      list.push(chalk`{yellow.bold ${updated} updated}`);
     }
 
     if (added) {
-      list.push(['added', 'green.bold', added]);
+      list.push(chalk`{green.bold ${added} added}`);
     }
 
     if (passed) {
-      list.push(['passed', 'green.bold', passed]);
+      list.push(chalk`{green.bold ${passed} passed}`);
     }
 
-    list.push(['total', 'reset', total]);
+    list.push(chalk`{reset ${total} total}`);
 
     this.keyValueList('Snapshots', list);
   }

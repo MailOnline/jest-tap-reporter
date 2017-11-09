@@ -32,7 +32,8 @@ Array [
 exports[`LineWriter .keyValueList() formats 3-tuple list into a value and calls .keyValue() 1`] = `
 Array [
   "foo",
-  "{styles1 1 name1}, {styles2 2 name2}, {styles3 3 name3}, {styles4 4 name4}",
+  "name1,styles1,1, name2,styles2,2, name3,styles3,3, name4,styles4,4",
+  "",
 ]
 `;
 
@@ -43,7 +44,8 @@ exports[`LineWriter .pending() colors "ok" yellow 1`] = `"{yellow ok}"`;
 exports[`LineWriter .snapshots() when all values are greater than zero prints them all 1`] = `
 Array [
   "Snapshots",
-  "1 failed, 1 updated, 1 added, 1 passed, 4 total",
+  "25%  ██▌       , 1 failed, 1 updated, 1 added, 1 passed, 4 total",
+  "",
 ]
 `;
 
@@ -81,28 +83,32 @@ Array [
 exports[`LineWriter .stats() when all tests pass shows only passed and total tests 1`] = `
 Array [
   "foo",
-  "1 passed, 1 total",
+  "100% ██████████, 1 passed, 1 total",
+  "",
 ]
 `;
 
 exports[`LineWriter .stats() when some tests are skipped and no tests fail shows only passed, skipped and total tests 1`] = `
 Array [
   "foo",
-  "1 skipped, 1 passed, 2 total",
+  "50%  █████     , 1 skipped, 1 passed, 2 total",
+  "",
 ]
 `;
 
 exports[`LineWriter .stats() when some tests are skipped shows all items 1`] = `
 Array [
   "foo",
-  "1 failed, 1 skipped, 1 passed, 3 total",
+  "33%  ███▍      , 1 failed, 1 skipped, 1 passed, 3 total",
+  "",
 ]
 `;
 
 exports[`LineWriter .stats() when some tests fail shows only passed, failed and total tests 1`] = `
 Array [
   "foo",
-  "1 failed, 1 passed, 2 total",
+  "50%  █████     , 1 failed, 1 passed, 2 total",
+  "",
 ]
 `;
 
@@ -110,6 +116,7 @@ exports[`LineWriter .stats() when zero tests shows only total zero 1`] = `
 Array [
   "foo",
   "0 total",
+  "",
 ]
 `;
 
