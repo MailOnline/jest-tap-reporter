@@ -1,5 +1,10 @@
 # jest-tap-reporter
 
+[travis-badge]: https://api.travis-ci.org/MailOnline/jest-tap-reporter.svg?branch=master
+[travis]: https://travis-ci.org/MailOnline/jest-tap-reporter
+
+[![Travis CI][travis-badge]][travis]
+
 Jest reporter that outputs valid [TAP](https://testanything.org/tap-specification.html) output and highlights similar to Jest's default reporter.
 
 ![jest-tap-reporter exaple](./docs/example.png)
