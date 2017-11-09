@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TapReporter onTestResults must output all the tests on a suite tests 1`] = `
+Array [
+  Array [
+    "must log an error if there is a problem processing the results",
+  ],
+  Array [
+    "must return the passed result obj without modifying it",
+  ],
+  Array [
+    "must output the tap results to a file",
+  ],
+  Array [
+    "must output the plan",
+  ],
+  Array [
+    "must properly output success test lines",
+  ],
+  Array [
+    "must properly output error test lines",
+  ],
+  Array [
+    "must add the skiped directive to skiped test lines",
+  ],
+]
+`;
+
+exports[`TapReporter onTestResults must output all the tests on a suite tests 2`] = `Array []`;
+
+exports[`TapReporter onTestResults must output all the tests on a suite tests 3`] = `Array []`;
+
+exports[`TapReporter onTestResults must output error tests 1`] = `
+Array [
+  Array [
+    "must output the plan",
+  ],
+]
+`;
+
+exports[`TapReporter onTestResults must output passing tests 1`] = `
+Array [
+  Array [
+    "must output the plan",
+  ],
+]
+`;
+
+exports[`TapReporter onTestResults must output skipped tests 1`] = `
+Array [
+  Array [
+    "must log an error if there is a problem processing the results",
+  ],
+]
+`;
+
+exports[`TapReporter onTestResults suite log must output a suite log with the Suites filePath if possible 1`] = `
+Array [
+  Array [
+    false,
+    "/jest-tap-reporter/test",
+    "TapReporter.spec.js",
+  ],
+]
+`;

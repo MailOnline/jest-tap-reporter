@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Foobar snapshot that always changes 1`] = `
+Object {
+  "time": 1510160275651,
+}
+`;
+
+exports[`Foobar static snapshot 1`] = `"static text"`;

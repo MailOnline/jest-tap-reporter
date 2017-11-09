@@ -1,6 +1,7 @@
 {
   "testResults":[
      {
+        "ancestorTitles": [],
         "failureMessages":[
            "Error: expect(jest.fn()).toHaveBeenCalledWith(expected)\n\nExpected mock function to have been called with:\n  [StringMatching /.*/, StringMatching /^1\\.\\.7/]\nBut it was called with:\n  [\"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test-results.tap\", \"1..4\nok 1 mol-fe-jest-tap-results-processor must log an error if there is a problem processing the results\nok 2 mol-fe-jest-tap-results-processor must return the passed result obj without modifying it\nok 3 mol-fe-jest-tap-results-processor must output the tap results to a file\nok 4 mol-fe-jest-tap-results-processor must output the plan\n# tests 4\n# pass 4\n# fail 0\"]\n    at Object.it (/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js:127:5)\n    at Object.asyncFn (/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/node_modules/jest-jasmine2/build/jasmine-async.js:68:30)\n    at resolve (/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/node_modules/jest-jasmine2/build/queueRunner.js:38:12)\n    at Promise (<anonymous>)\n    at mapper (/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/node_modules/jest-jasmine2/build/queueRunner.js:31:21)\n    at Promise.resolve.then.el (/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/node_modules/p-map/index.js:42:16)\n    at <anonymous>\n    at process._tickCallback (internal/process/next_tick.js:169:7)"
         ],
@@ -10,7 +11,7 @@
   ],
   "endTime":1500478842090,
   "message":"  ● mol-fe-jest-tap-results-processor › must output the plan\n\n    expect(jest.fn()).toHaveBeenCalledWith(expected)\n    \n    Expected mock function to have been called with:\n      [StringMatching /.*/, StringMatching /^1\\.\\.7/]\n    But it was called with:\n      [\"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test-results.tap\", \"1..4\n    ok 1 mol-fe-jest-tap-results-processor must log an error if there is a problem processing the results\n    ok 2 mol-fe-jest-tap-results-processor must return the passed result obj without modifying it\n    ok 3 mol-fe-jest-tap-results-processor must output the tap results to a file\n    ok 4 mol-fe-jest-tap-results-processor must output the plan\n    # tests 4\n    # pass 4\n    # fail 0\"]\n      \n      at Object.it (test/index.spec.js:127:5)\n          at Promise (<anonymous>)\n          at <anonymous>\n      at process._tickCallback (internal/process/next_tick.js:169:7)\n",
-  "name":"/Users/carlospastor/dev/mailonline/mol-fe-jest-tap-results-processor/test/index.spec.js",
+  "name":"/jest-tap-reporter/test/index.spec.js",
   "startTime":1500478841634,
   "status":"failed",
   "summary":""

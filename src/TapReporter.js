@@ -1,24 +1,62 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
 const path = require('path');
 const chalk = require('chalk');
-const ms = require('ms');
-const Logger = require('./helpers/Logger');
+const Logger = require('./Logger');
+const LineWriter = require('./LineWriter');
+
+const STATUS_PASSED = 'passed';
+const STATUS_FAILED = 'failed';
+const STATUS_PENDING = 'pending';
+
+const sShouldFail = Symbol('shouldFail');
 
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
 
-    this._globalConfig = globalConfig;
-    this._options = options;
-    this._shouldFail = false;
-    this._watch = this._globalConfig.watch;
-    this.logger = new Logger({
-      logLevel
-    });
-    this.counter = 0;
+    this.globalConfig = globalConfig;
+    this.options = options;
+    this[sShouldFail] = false;
+    this.writer = new LineWriter(new Logger({logLevel}), globalConfig.rootDir);
+    this.onAssertionResult = this.onAssertionResult.bind(this);
 
-    this.logger.log('\n');
-    this.logger.info('\n\n# Starting ...\n');
+    this.onRunStartResults = {};
+    this.onRunStartOptions = {};
+  }
+
+  pathRelativeToRoot (filePath) {
+    return path.relative(this.globalConfig.rootDir, filePath);
+  }
+
+  onAssertionResult (assertiontResult) {
+    const {ancestorTitles = [], failureMessages, title, status} = assertiontResult;
+
+    let formattedTitle = status === STATUS_FAILED ?
+      chalk`{red ${title}}` :
+      chalk`{rgb(80,80,80) ${title}}`;
+
+    formattedTitle = [...ancestorTitles, formattedTitle].join(' › ');
+
+    switch (status) {
+    case STATUS_PASSED:
+      if (!this.globalConfig.watch) {
+        this.writer.passed(formattedTitle);
+      }
+      break;
+    case STATUS_FAILED:
+      this.writer.failed(formattedTitle);
+      this.writer.errors(failureMessages);
+      break;
+    case STATUS_PENDING:
+      this.writer.pending(formattedTitle);
+      this.writer.errors(failureMessages);
+      break;
+    default:
+
+      // eslint-disable-next-line no-warning-comments
+      // TODO: add tests for this and reconsider in general what to do in the default case.
+      this.writer.commentLight(chalk`{italic Unknown status: ${status}}`);
+    }
   }
 
   onTestResult (contexts, suite) {
@@ -26,73 +64,59 @@ class TapReporter {
 
     if (testFilePath) {
       const {dir, base} = path.parse(testFilePath);
-      const prefix = this._watch ? '' : '\n';
-      const label = chalk[numFailingTests > 0 ? 'bgRed' : 'bgGreen'](` ${chalk.black('SUITE')} `);
 
-      this.logger.info(`${prefix}${chalk.grey('#')}${label} ${chalk.grey(`${dir}${path.sep}`)}${base}`);
+      if (!this.globalConfig.watch) {
+        this.writer.blank();
+      }
+      this.writer.suite(numFailingTests > 0, dir, base);
+      this.writer.blank();
     }
 
-    testResults.forEach((test) => {
-      this.counter += 1;
-
-      if (test.status === 'passed') {
-        if (!this._watch) {
-          this.logger.log(`${chalk.green('ok')} ${this.counter} ${test.title}`);
-        }
-      } else if (test.status === 'failed') {
-        this.logger.log(`${chalk.red('not ok')} ${this.counter} ${test.title}`);
-        if (test.failureMessages.length > 0) {
-          const diagnostics = test.failureMessages
-            .reduce((lines, msg) => lines.concat(msg.split('\n')), [])
-            .map((line) => chalk.grey(`# ${line}`))
-            .join('\n');
-
-          this.logger.error(diagnostics);
-        }
-      } else if (test.status === 'pending') {
-        this.logger.log(`${chalk.yellow('ok')} ${test.title} ${chalk.yellow('# SKIP')}`);
-      }
-    });
+    testResults.forEach(this.onAssertionResult);
   }
 
-  onRunComplete (contexts, results) {
-    const {
-      numFailedTestSuites,
-      numFailedTests,
-      numPassedTestSuites,
-      numPassedTests,
-      numPendingTestSuites,
-      numPendingTests,
-      numTotalTestSuites,
-      numTotalTests,
-      startTime
-    } = results;
-    const skippedTestSuites = numPendingTestSuites > 0 ? `${chalk.yellow(`${numPendingTestSuites} skipped`)}, ` : '';
-    const skippedTests = numPendingTests > 0 ? `${chalk.yellow(`${numPendingTests} skipped`)}, ` : '';
+  onRunStart (results, options) {
+    this.onRunStartOptions = options;
 
-    this._shouldFail = numFailedTestSuites > 0 || numFailedTests > 0;
+    this.writer.start(results.numTotalTestSuites);
+  }
 
-    this.logger.info('\n');
-    if (numFailedTestSuites > 0) {
-      this.logger.info(`# testSuites: ${skippedTestSuites}${chalk.red(`${numFailedTestSuites} failed`)}, ${numTotalTestSuites} total`);
-    } else {
-      this.logger.info(`# testSuites: ${skippedTestSuites}${chalk.green(`${numPassedTestSuites} passed`)}, ${numTotalTestSuites} total`);
+  onRunComplete (contexts, aggregatedResults) {
+    const {estimatedTime} = this.onRunStartOptions;
+
+    const snapshotResults = aggregatedResults.snapshot;
+    const snapshotsAdded = snapshotResults.added;
+    const snapshotsFailed = snapshotResults.unmatched;
+    const snapshotsPassed = snapshotResults.matched;
+    const snapshotsTotal = snapshotResults.total;
+    const snapshotsUpdated = snapshotResults.updated;
+    const suitesFailed = aggregatedResults.numFailedTestSuites;
+    const suitesPassed = aggregatedResults.numPassedTestSuites;
+    const suitesPending = aggregatedResults.numPendingTestSuites;
+    const suitesTotal = aggregatedResults.numTotalTestSuites;
+    const testsFailed = aggregatedResults.numFailedTests;
+    const testsPassed = aggregatedResults.numPassedTests;
+    const testsPending = aggregatedResults.numPendingTests;
+    const testsTotal = aggregatedResults.numTotalTests;
+    const startTime = aggregatedResults.startTime;
+
+    this[sShouldFail] = testsFailed > 0 || suitesFailed > 0;
+
+    this.writer.blank();
+    this.writer.plan();
+    this.writer.blank();
+    this.writer.stats('Test Suites', suitesFailed, suitesPending, suitesPassed, suitesTotal);
+    this.writer.stats('Tests', testsFailed, testsPending, testsPassed, testsTotal);
+    if (snapshotsTotal) {
+      this.writer.snapshots(snapshotsFailed, snapshotsUpdated, snapshotsAdded, snapshotsPassed, snapshotsTotal);
     }
-
-    if (numFailedTests > 0) {
-      this.logger.info(`# tests:      ${skippedTests}${chalk.red(`${numFailedTests} failed`)}, ${numTotalTests} total`);
-    } else {
-      this.logger.info(`# tests:      ${skippedTests}${chalk.green(`${numPassedTests} passed`)}, ${numTotalTests} total`);
-    }
-
-    this.logger.info(`# time:       ${ms(Date.now() - startTime)}`);
-    this.logger.info('\n');
-
-    this.counter = 0;
+    this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s` + (estimatedTime ? `, estimated ${estimatedTime}s` : ''));
+    this.writer.commentLight('Ran all test suites.');
+    this.writer.blank();
   }
 
   getLastError () {
-    if (this._shouldFail) {
+    if (this[sShouldFail]) {
       return new Error('TAP Reporter: failing tests found');
     }
 

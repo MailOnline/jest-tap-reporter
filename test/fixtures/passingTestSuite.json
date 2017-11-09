@@ -14,5 +14,5 @@
   "startTime":1500478745692,
   "status":"passed",
   "summary":"",
-  "testFilePath": "/Users/carlospastor/dev/mailonline/jest-tap-reporter/TapReporter.spec.js"
+  "testFilePath": "/jest-tap-reporter/test/TapReporter.spec.js"
 }
