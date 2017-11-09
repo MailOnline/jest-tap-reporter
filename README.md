@@ -2,8 +2,11 @@
 
 [travis-badge]: https://api.travis-ci.org/MailOnline/jest-tap-reporter.svg?branch=master
 [travis]: https://travis-ci.org/MailOnline/jest-tap-reporter
+[npm-badge]: https://img.shields.io/npm/v/jest-tap-reporter.svg
+[npm]: https://www.npmjs.com/package/jest-tap-reporter
+[license-badge]: https://img.shields.io/badge/license-MIT-green.svg
 
-[![Travis CI][travis-badge]][travis]
+[![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] ![License][license-badge]
 
 Jest reporter that outputs valid [TAP](https://testanything.org/tap-specification.html) output and highlights similar to Jest's default reporter.
 
