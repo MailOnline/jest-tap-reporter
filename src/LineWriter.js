@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 const path = require('path');
 const chalk = require('chalk');
 const progressBar = require('./progressBar');
@@ -6,6 +7,9 @@ const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
 const REG_INTERNALS = /^(node_modules|internal)\//;
 const REG_AT = /^\s*at/;
 const REG_ERROR = /^\s*Error:\s*/;
+const REG_RECEIVED = /^\s*Received:/;
+const REG_EXPECTED = /^\s*Expected value to equal:/;
+const REG_DIFFERENCE = /^\s*Difference:/;
 
 const MDASH = '\u2014';
 const CIRCLE = '●';
@@ -175,6 +179,7 @@ class LineWriter {
   formatFailureMessage (message) {
     const [firstLine, ...lines] = message.split('\n');
     const outputLines = [];
+    let context = '';
     const whitespace = '  ';
 
     const push = (line) => {
@@ -205,7 +210,7 @@ class LineWriter {
           if (!isLastLineBlank) {
             push('');
           }
-          push(chalk`{bold.dim Stack trace:}`);
+          push('Stack:');
           push('');
         }
 
@@ -229,7 +234,32 @@ class LineWriter {
           pushTraceLine(line);
         }
       } else {
-        push(line);
+        // eslint-disable-next-line no-lonely-if
+        if (line.match(REG_RECEIVED)) {
+          context = 'received';
+          push('');
+          push('Received:');
+          push('');
+        } else if (line.match(REG_EXPECTED)) {
+          context = 'expected';
+          push('Expected:');
+          push('');
+        } else if (line.match(REG_DIFFERENCE)) {
+          context = 'difference';
+          push('Difference:');
+        } else {
+          switch (context) {
+          case 'expected':
+          case 'received':
+            push('  ' + line);
+            break;
+          case 'difference':
+            push('    ' + line);
+            break;
+          default:
+            push(line);
+          }
+        }
       }
     }
 
