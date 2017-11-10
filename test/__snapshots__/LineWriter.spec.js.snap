@@ -38,8 +38,6 @@ Array [
 
 exports[`LineWriter .passed() colors "ok" green 1`] = `"{green ok}"`;
 
-exports[`LineWriter .pending() colors "ok" yellow 1`] = `"{yellow ok}"`;
-
 exports[`LineWriter .skipped() colors "ok" yellow 1`] = `"{yellow ok}"`;
 
 exports[`LineWriter .snapshots() when all values are greater than zero prints them all 1`] = `
