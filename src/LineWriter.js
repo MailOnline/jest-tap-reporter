@@ -131,7 +131,7 @@ class LineWriter {
     const list = [];
 
     const percent = passed / total;
-    const bar = formatStatsBar(percent, percent < 1 && !updated);
+    const bar = formatStatsBar(percent, percent < 1 && !updated && !added);
 
     list.push(bar);
 
