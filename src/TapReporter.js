@@ -48,7 +48,7 @@ class TapReporter {
       this.writer.errors(failureMessages);
       break;
     case STATUS_PENDING:
-      this.writer.pending(formattedTitle);
+      this.writer.skipped(formattedTitle);
       this.writer.errors(failureMessages);
       break;
     default:

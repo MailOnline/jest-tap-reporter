@@ -76,21 +76,21 @@ class LineWriter {
     this.comment(chalk`{dim ${line}}`);
   }
 
-  keyValue (key, value, prefix = '') {
+  keyValue (key, value) {
     // eslint-disable-next-line no-use-extend-native/no-use-extend-native
     const keyFormatted = (key + ':').padEnd(12, ' ');
 
-    this.comment(chalk`${prefix}{bold ${keyFormatted}} ${value}`);
+    this.comment(chalk`{bold ${keyFormatted}} ${value}`);
   }
 
-  keyValueList (key, list, prefix = '') {
+  keyValueList (key, list) {
     let value = '';
 
     for (const item of list) {
       value += (value ? ', ' : '') + item;
     }
 
-    this.keyValue(key, value, prefix);
+    this.keyValue(key, value);
   }
 
   stats (name, failed, skipped, passed, total) {
@@ -164,8 +164,8 @@ class LineWriter {
     this.result(chalk`{red not ok}`, chalk`{red.bold ${CIRCLE} ${title}}`);
   }
 
-  pending (title) {
-    this.result(chalk`{yellow ok}`, chalk`{yellow #} {yellow.bold SKIP} ${title}`);
+  skipped (title) {
+    this.result(chalk`{yellow ok}`, chalk`{yellow #} {yellow.bold SKIP} {yellow ${title}}`);
   }
 
   getPathRelativeToRoot (filePath) {
