@@ -1,4 +1,4 @@
-/* eslint-disable complexity */
+/* eslint-disable complexity, no-use-extend-native/no-use-extend-native */
 const path = require('path');
 const chalk = require('chalk');
 const progressBar = require('./progressBar');
@@ -26,11 +26,16 @@ const PASS = chalk.supportsColor ?
   ` ${PASS_TEXT} `;
 
 const formatComment = (line) => chalk`{hidden #} ${line}`;
+
 const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
   chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
+
 const formatStatsBar = (percent, hasErrors) => {
-  // eslint-disable-next-line no-use-extend-native/no-use-extend-native
-  const percentFormatted = (Math.round(100 * percent) + '%').padStart(3, ' ').padEnd(4, ' ');
+  let percentFormatted = Math.round(100 * percent) + '%';
+
+  percentFormatted = percentFormatted.padStart(3, ' ');
+  percentFormatted = percentFormatted.padEnd(4, ' ');
+
   const bar = progressBar(percent, hasErrors ? 'red' : 'grey.dim');
 
   let textStyles = 'green';
