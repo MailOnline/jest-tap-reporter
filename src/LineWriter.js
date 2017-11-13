@@ -7,6 +7,7 @@ const formatFailureMessageTraceLine = require('./format/formatFailureMessageTrac
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
 const REG_INTERNALS = /^(node_modules|internal)\//;
+const REG_AT_PATH = /^\s*at (\/[^:]+):([0-9]+):([0-9]+)\s*$/;
 const REG_AT = /^\s*at/;
 const REG_ERROR = /^\s*Error:\s*/;
 const REG_RECEIVED = /^\s*Received:/;
@@ -233,7 +234,16 @@ class LineWriter {
             }
           }
         } else {
-          pushTraceLine(line);
+          const atPathMatches = line.match(REG_AT_PATH);
+          const pushMethod = internalsStarted ? pushTraceLineDim : pushTraceLine;
+
+          if (atPathMatches) {
+            const [, atPathPath, atPathRow, atPathColumn] = atPathMatches;
+
+            pushMethod(chalk`at {cyan ${this.getPathRelativeToRoot(atPathPath)}}:{bold ${atPathRow}}:{bold ${atPathColumn}}`);
+          } else {
+            pushMethod(line);
+          }
         }
       } else {
         // eslint-disable-next-line no-lonely-if
