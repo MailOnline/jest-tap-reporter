@@ -14,5 +14,6 @@
   "name":"/jest-tap-reporter/test/index.spec.js",
   "startTime":1500478841634,
   "status":"failed",
-  "summary":""
+  "summary":"",
+  "testFilePath": "/jest-tap-reporter/test/TapReporter.spec.js"
 }

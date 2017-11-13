@@ -55,5 +55,6 @@
   "name":"/jest-tap-reporter/test/index.spec.js",
   "startTime":1500478996144,
   "status":"passed",
-  "summary":""
+  "summary":"",
+   "testFilePath": "/jest-tap-reporter/test/TapReporter.spec.js"
 }
