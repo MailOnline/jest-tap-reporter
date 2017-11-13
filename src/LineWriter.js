@@ -180,7 +180,7 @@ class LineWriter {
     };
     const pushTraceLine = (line) => push(chalk`    {grey ${line}}`);
     const pushTraceLineDim = (line) => pushTraceLine(chalk`{dim ${line}}`);
-    const pushCodeFrameLine = (line) => push('    ' + line);
+    const pushCodeFrameLine = (line) => push('        ' + line);
 
     let firstLineFormatted = firstLine;
 
@@ -256,7 +256,7 @@ class LineWriter {
             push('  ' + line);
             break;
           case 'difference':
-            push('    ' + line);
+            push('    ' + line.trim());
             break;
           default:
             push(line);

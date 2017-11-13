@@ -59,20 +59,23 @@ class TapReporter {
     }
   }
 
-  onTestResult (contexts, suite) {
-    const {testResults, testFilePath, numFailingTests} = suite;
+  onTestResult (test, testResult) {
+    const {testExecError, testResults, testFilePath, numFailingTests} = testResult;
+    const {dir, base} = path.parse(testFilePath);
+    const suiteFailed = Boolean(testExecError);
 
-    if (testFilePath) {
-      const {dir, base} = path.parse(testFilePath);
-
-      if (!this.globalConfig.watch) {
-        this.writer.blank();
-      }
-      this.writer.suite(numFailingTests > 0, dir, base);
+    if (!this.globalConfig.watch) {
       this.writer.blank();
     }
+    this.writer.suite(numFailingTests > 0 || suiteFailed, dir, base);
+    this.writer.blank();
 
-    testResults.forEach(this.onAssertionResult);
+    // If error in test suite itself.
+    if (suiteFailed) {
+      this.writer.errors([testExecError.stack]);
+    } else {
+      testResults.forEach(this.onAssertionResult);
+    }
   }
 
   onRunStart (results, options) {
