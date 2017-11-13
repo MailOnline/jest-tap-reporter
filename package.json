@@ -45,6 +45,7 @@
   "dependencies": {
     "chalk": "^2.3.0",
     "strip-ansi": "4.0.0",
-    "utf8-bar": "0.1.0"
+    "utf8-bar": "0.1.0",
+    "@babel/code-frame": "7.0.0-beta.32"
   }
 }

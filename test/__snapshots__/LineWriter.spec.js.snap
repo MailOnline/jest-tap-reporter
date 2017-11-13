@@ -15,7 +15,13 @@ exports[`LineWriter .errors() format stack trace 1`] = `
 #   Stack:
 #   
 #       at Something (../foo/bar.js:10:10)
+#   
+#       
+#   
 #       at Foobar (../foo/bar2.js:20:20)
+#   
+#       
+#   
 #   "
 `;
 

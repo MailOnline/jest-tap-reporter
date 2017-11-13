@@ -1,6 +1,8 @@
 /* eslint-disable complexity, no-use-extend-native/no-use-extend-native */
 const path = require('path');
+const fs = require('fs');
 const chalk = require('chalk');
+const {codeFrameColumns} = require('@babel/code-frame');
 const progressBar = require('./progressBar');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
@@ -49,6 +51,24 @@ const formatStatsBar = (percent, hasErrors) => {
   return chalk`{${textStyles} ${percentFormatted}} ${bar}`;
 };
 
+const formatCodeFrame = (filePath, line, column) => {
+  try {
+    const source = fs.readFileSync(filePath, 'utf8');
+    const location = {
+      start: {
+        column,
+        line
+      }
+    };
+
+    return codeFrameColumns(source, location, {
+      highlightCode: true
+    });
+  } catch (error) {
+    return '';
+  }
+};
+
 class LineWriter {
   constructor (logger, root) {
     this.counter = 0;
@@ -69,6 +89,14 @@ class LineWriter {
 
   comment (line) {
     this.logger.info(formatComment(line));
+  }
+
+  commentBlock (str) {
+    const lines = str.split('\n');
+
+    for (const line of lines) {
+      this.comment(line);
+    }
   }
 
   start (numSuites) {
@@ -192,6 +220,7 @@ class LineWriter {
     };
     const pushTraceLine = (line) => push(chalk`    {grey ${line}}`);
     const pushTraceLineDim = (line) => pushTraceLine(chalk`{dim ${line}}`);
+    const pushCodeFrameLine = (line) => push('    ' + line);
 
     let firstLineFormatted = firstLine;
 
@@ -234,6 +263,12 @@ class LineWriter {
             pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
           } else {
             pushTraceLine(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+
+            const codeFrame = formatCodeFrame(file, row, column);
+
+            push('');
+            codeFrame.split('\n').forEach((codeFrameLine) => pushCodeFrameLine(codeFrameLine));
+            push('');
           }
         } else {
           pushTraceLine(line);
