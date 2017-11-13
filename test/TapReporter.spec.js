@@ -79,8 +79,8 @@ describe('TapReporter', () => {
 
       tapReporter.onTestResult({}, skippedTestSuite);
 
-      expect(tapReporter.writer.pending).toHaveBeenCalledTimes(1);
-      expect(tapReporter.writer.pending.mock.calls).toMatchSnapshot();
+      expect(tapReporter.writer.skipped).toHaveBeenCalledTimes(1);
+      expect(tapReporter.writer.skipped.mock.calls).toMatchSnapshot();
     });
 
     test('must output all the tests on a suite tests', () => {
@@ -91,7 +91,7 @@ describe('TapReporter', () => {
 
       expect(tapReporter.writer.passed.mock.calls).toMatchSnapshot();
       expect(tapReporter.writer.failed.mock.calls).toMatchSnapshot();
-      expect(tapReporter.writer.pending.mock.calls).toMatchSnapshot();
+      expect(tapReporter.writer.skipped.mock.calls).toMatchSnapshot();
     });
 
     describe('suite log', () => {

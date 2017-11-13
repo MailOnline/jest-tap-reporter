@@ -1,10 +1,15 @@
+/* eslint-disable complexity, no-use-extend-native/no-use-extend-native */
 const path = require('path');
 const chalk = require('chalk');
+const progressBar = require('./progressBar');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
 const REG_INTERNALS = /^(node_modules|internal)\//;
 const REG_AT = /^\s*at/;
 const REG_ERROR = /^\s*Error:\s*/;
+const REG_RECEIVED = /^\s*Received:/;
+const REG_EXPECTED = /^\s*Expected value to equal:/;
+const REG_DIFFERENCE = /^\s*Difference:/;
 
 const MDASH = '\u2014';
 const CIRCLE = '●';
@@ -21,8 +26,28 @@ const PASS = chalk.supportsColor ?
   ` ${PASS_TEXT} `;
 
 const formatComment = (line) => chalk`{hidden #} ${line}`;
+
 const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
   chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
+
+const formatStatsBar = (percent, hasErrors) => {
+  let percentFormatted = Math.round(100 * percent) + '%';
+
+  percentFormatted = percentFormatted.padStart(3, ' ');
+  percentFormatted = percentFormatted.padEnd(4, ' ');
+
+  const bar = progressBar(percent, hasErrors ? 'red' : 'grey.dim');
+
+  let textStyles = 'green';
+
+  if (hasErrors) {
+    textStyles = 'red.bold';
+  } else if (percent < 1) {
+    textStyles = 'yellow';
+  }
+
+  return chalk`{${textStyles} ${percentFormatted}} ${bar}`;
+};
 
 class LineWriter {
   constructor (logger, root) {
@@ -70,8 +95,8 @@ class LineWriter {
   keyValueList (key, list) {
     let value = '';
 
-    for (const [label, style, num] of list) {
-      value += (value ? ', ' : '') + chalk`{${style} ${num} ${label}}`;
+    for (const item of list) {
+      value += (value ? ', ' : '') + item;
     }
 
     this.keyValue(key, value);
@@ -81,20 +106,25 @@ class LineWriter {
     const list = [];
 
     if (total) {
+      const bar = formatStatsBar(passed / total, passed + skipped < total);
+
+      list.push(bar);
+
       if (failed) {
-        list.push(['failed', 'red.bold', failed]);
+        list.push(chalk`{red.bold ${failed} failed}`);
       }
 
       if (skipped) {
-        list.push(['skipped', 'yellow.bold', skipped]);
+        list.push(chalk`{yellow.bold ${skipped} skipped}`);
       }
 
       if (passed) {
-        list.push(['passed', 'green.bold', passed]);
+        list.push(chalk`{green.bold ${passed} passed}`);
       }
     }
 
-    list.push(['total', 'reset', total]);
+    list.push(chalk`{reset ${total} total}`);
+
     this.keyValueList(name, list);
   }
 
@@ -105,23 +135,28 @@ class LineWriter {
 
     const list = [];
 
+    const percent = passed / total;
+    const bar = formatStatsBar(percent, percent < 1 && !updated && !added);
+
+    list.push(bar);
+
     if (failed) {
-      list.push(['failed', 'red.bold', failed]);
+      list.push(chalk`{red.bold ${failed} failed}`);
     }
 
     if (updated) {
-      list.push(['updated', 'yellow.bold', updated]);
+      list.push(chalk`{yellow.bold ${updated} updated}`);
     }
 
     if (added) {
-      list.push(['added', 'green.bold', added]);
+      list.push(chalk`{green.bold ${added} added}`);
     }
 
     if (passed) {
-      list.push(['passed', 'green.bold', passed]);
+      list.push(chalk`{green.bold ${passed} passed}`);
     }
 
-    list.push(['total', 'reset', total]);
+    list.push(chalk`{reset ${total} total}`);
 
     this.keyValueList('Snapshots', list);
   }
@@ -138,8 +173,8 @@ class LineWriter {
     this.result(chalk`{red not ok}`, chalk`{red.bold ${CIRCLE} ${title}}`);
   }
 
-  pending (title) {
-    this.result(chalk`{yellow ok}`, chalk`{yellow #} {yellow.bold SKIP} ${title}`);
+  skipped (title) {
+    this.result(chalk`{yellow ok}`, chalk`{yellow #} {yellow.bold SKIP} {yellow ${title}}`);
   }
 
   getPathRelativeToRoot (filePath) {
@@ -149,6 +184,7 @@ class LineWriter {
   formatFailureMessage (message) {
     const [firstLine, ...lines] = message.split('\n');
     const outputLines = [];
+    let context = '';
     const whitespace = '  ';
 
     const push = (line) => {
@@ -179,7 +215,7 @@ class LineWriter {
           if (!isLastLineBlank) {
             push('');
           }
-          push(chalk`{bold.dim Stack trace:}`);
+          push('Stack:');
           push('');
         }
 
@@ -203,7 +239,32 @@ class LineWriter {
           pushTraceLine(line);
         }
       } else {
-        push(line);
+        // eslint-disable-next-line no-lonely-if
+        if (line.match(REG_RECEIVED)) {
+          context = 'received';
+          push('');
+          push('Received:');
+          push('');
+        } else if (line.match(REG_EXPECTED)) {
+          context = 'expected';
+          push('Expected:');
+          push('');
+        } else if (line.match(REG_DIFFERENCE)) {
+          context = 'difference';
+          push('Difference:');
+        } else {
+          switch (context) {
+          case 'expected':
+          case 'received':
+            push('  ' + line);
+            break;
+          case 'difference':
+            push('    ' + line);
+            break;
+          default:
+            push(line);
+          }
+        }
       }
     }
 

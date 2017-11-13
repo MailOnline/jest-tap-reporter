@@ -48,7 +48,7 @@ class TapReporter {
       this.writer.errors(failureMessages);
       break;
     case STATUS_PENDING:
-      this.writer.pending(formattedTitle);
+      this.writer.skipped(formattedTitle);
       this.writer.errors(failureMessages);
       break;
     default:
@@ -110,7 +110,11 @@ class TapReporter {
     if (snapshotsTotal) {
       this.writer.snapshots(snapshotsFailed, snapshotsUpdated, snapshotsAdded, snapshotsPassed, snapshotsTotal);
     }
-    this.writer.keyValue('Time', `${((Date.now() - startTime) / 1e3).toFixed(3)}s` + (estimatedTime ? `, estimated ${estimatedTime}s` : ''));
+
+    const timeValue = `${((Date.now() - startTime) / 1e3).toFixed(3)}s` + (estimatedTime ? `, estimated ${estimatedTime}s` : '');
+
+    this.writer.keyValue('Time', timeValue);
+    this.writer.blank();
     this.writer.commentLight('Ran all test suites.');
     this.writer.blank();
   }

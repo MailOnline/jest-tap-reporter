@@ -338,14 +338,14 @@ describe('LineWriter', () => {
     });
   });
 
-  describe('.pending()', () => {
+  describe('.skipped()', () => {
     test('calls .result() with the right parameters', () => {
       chalk.__stripColors();
 
       const writer = create();
 
       writer.result = jest.fn();
-      writer.pending('Test pending');
+      writer.skipped('Test pending');
 
       expect(writer.result).toHaveBeenCalledTimes(1);
       expect(writer.result.mock.calls[0]).toEqual(['ok', '# SKIP Test pending']);
@@ -357,7 +357,7 @@ describe('LineWriter', () => {
       const writer = create();
 
       writer.result = jest.fn();
-      writer.pending('Test pending');
+      writer.skipped('Test pending');
 
       expect(writer.result).toHaveBeenCalledTimes(1);
       expect(writer.result.mock.calls[0][0]).toMatchSnapshot();
