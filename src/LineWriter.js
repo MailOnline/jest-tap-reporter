@@ -10,7 +10,7 @@ const REG_INTERNALS = /^(node_modules|internal)\//;
 const REG_AT = /^\s*at/;
 const REG_ERROR = /^\s*Error:\s*/;
 const REG_RECEIVED = /^\s*Received:/;
-const REG_EXPECTED = /^\s*Expected value to equal:/;
+const REG_EXPECTED = /^\s*Expected value to[^:]+:/;
 const REG_DIFFERENCE = /^\s*Difference:/;
 
 const MDASH = '\u2014';
