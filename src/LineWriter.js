@@ -266,9 +266,11 @@ class LineWriter {
 
             const codeFrame = formatCodeFrame(file, row, column);
 
-            push('');
-            codeFrame.split('\n').forEach((codeFrameLine) => pushCodeFrameLine(codeFrameLine));
-            push('');
+            if (codeFrame) {
+              push('');
+              codeFrame.split('\n').forEach((codeFrameLine) => pushCodeFrameLine(codeFrameLine));
+              push('');
+            }
           }
         } else {
           pushTraceLine(line);
