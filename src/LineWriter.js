@@ -1,9 +1,9 @@
 /* eslint-disable complexity, no-use-extend-native/no-use-extend-native */
 const path = require('path');
-const fs = require('fs');
 const chalk = require('chalk');
-const {codeFrameColumns} = require('@babel/code-frame');
-const progressBar = require('./progressBar');
+const formatCodeFrame = require('./format/formatCodeFrame');
+const formatStatsBar = require('./format/formatStatsBar');
+const formatFailureMessageTraceLine = require('./format/formatFailureMessageTraceLine');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
 const REG_INTERNALS = /^(node_modules|internal)\//;
@@ -28,46 +28,6 @@ const PASS = chalk.supportsColor ?
   ` ${PASS_TEXT} `;
 
 const formatComment = (line) => chalk`{hidden #} ${line}`;
-
-const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
-  chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
-
-const formatStatsBar = (percent, hasErrors) => {
-  let percentFormatted = Math.round(100 * percent) + '%';
-
-  percentFormatted = percentFormatted.padStart(3, ' ');
-  percentFormatted = percentFormatted.padEnd(4, ' ');
-
-  const bar = progressBar(percent, hasErrors ? 'red' : 'grey.dim');
-
-  let textStyles = 'green';
-
-  if (hasErrors) {
-    textStyles = 'red.bold';
-  } else if (percent < 1) {
-    textStyles = 'yellow';
-  }
-
-  return chalk`{${textStyles} ${percentFormatted}} ${bar}`;
-};
-
-const formatCodeFrame = (filePath, line, column) => {
-  try {
-    const source = fs.readFileSync(filePath, 'utf8');
-    const location = {
-      start: {
-        column,
-        line
-      }
-    };
-
-    return codeFrameColumns(source, location, {
-      highlightCode: true
-    });
-  } catch (error) {
-    return '';
-  }
-};
 
 class LineWriter {
   constructor (logger, root) {
