@@ -61,4 +61,4 @@ Available log levels are: `ERROR`, `WARN`, `INFO`.
 
 ## License
 
-MIT, see [LICENSE.md](./LICENSE).
+MIT, see [LICENSE](./LICENSE).

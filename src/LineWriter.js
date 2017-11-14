@@ -1,14 +1,17 @@
 /* eslint-disable complexity, no-use-extend-native/no-use-extend-native */
 const path = require('path');
 const chalk = require('chalk');
-const progressBar = require('./progressBar');
+const formatCodeFrame = require('./format/formatCodeFrame');
+const formatStatsBar = require('./format/formatStatsBar');
+const formatFailureMessageTraceLine = require('./format/formatFailureMessageTraceLine');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
 const REG_INTERNALS = /^(node_modules|internal)\//;
+const REG_AT_PATH = /^\s*at (\/[^:]+):([0-9]+):([0-9]+)\s*$/;
 const REG_AT = /^\s*at/;
 const REG_ERROR = /^\s*Error:\s*/;
 const REG_RECEIVED = /^\s*Received:/;
-const REG_EXPECTED = /^\s*Expected value to equal:/;
+const REG_EXPECTED = /^\s*Expected value to[^:]+:/;
 const REG_DIFFERENCE = /^\s*Difference:/;
 
 const MDASH = '\u2014';
@@ -26,28 +29,6 @@ const PASS = chalk.supportsColor ?
   ` ${PASS_TEXT} `;
 
 const formatComment = (line) => chalk`{hidden #} ${line}`;
-
-const formatFailureMessageTraceLine = (description, relativeFilePath, row, column) =>
-  chalk`${description}({cyan ${relativeFilePath}}:{black.bold ${row}}:{black.bold ${column}})`;
-
-const formatStatsBar = (percent, hasErrors) => {
-  let percentFormatted = Math.round(100 * percent) + '%';
-
-  percentFormatted = percentFormatted.padStart(3, ' ');
-  percentFormatted = percentFormatted.padEnd(4, ' ');
-
-  const bar = progressBar(percent, hasErrors ? 'red' : 'grey.dim');
-
-  let textStyles = 'green';
-
-  if (hasErrors) {
-    textStyles = 'red.bold';
-  } else if (percent < 1) {
-    textStyles = 'yellow';
-  }
-
-  return chalk`{${textStyles} ${percentFormatted}} ${bar}`;
-};
 
 class LineWriter {
   constructor (logger, root) {
@@ -69,6 +50,14 @@ class LineWriter {
 
   comment (line) {
     this.logger.info(formatComment(line));
+  }
+
+  commentBlock (str) {
+    const lines = str.split('\n');
+
+    for (const line of lines) {
+      this.comment(line);
+    }
   }
 
   start (numSuites) {
@@ -192,6 +181,7 @@ class LineWriter {
     };
     const pushTraceLine = (line) => push(chalk`    {grey ${line}}`);
     const pushTraceLineDim = (line) => pushTraceLine(chalk`{dim ${line}}`);
+    const pushCodeFrameLine = (line) => push('        ' + line);
 
     let firstLineFormatted = firstLine;
 
@@ -234,9 +224,26 @@ class LineWriter {
             pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
           } else {
             pushTraceLine(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+
+            const codeFrame = formatCodeFrame(file, row, column);
+
+            if (codeFrame) {
+              push('');
+              codeFrame.split('\n').forEach((codeFrameLine) => pushCodeFrameLine(codeFrameLine));
+              push('');
+            }
           }
         } else {
-          pushTraceLine(line);
+          const atPathMatches = line.match(REG_AT_PATH);
+          const pushMethod = internalsStarted ? pushTraceLineDim : pushTraceLine;
+
+          if (atPathMatches) {
+            const [, atPathPath, atPathRow, atPathColumn] = atPathMatches;
+
+            pushMethod(chalk`at {cyan ${this.getPathRelativeToRoot(atPathPath)}}:{bold ${atPathRow}}:{bold ${atPathColumn}}`);
+          } else {
+            pushMethod(line);
+          }
         }
       } else {
         // eslint-disable-next-line no-lonely-if
@@ -259,7 +266,7 @@ class LineWriter {
             push('  ' + line);
             break;
           case 'difference':
-            push('    ' + line);
+            push('    ' + line.trim());
             break;
           default:
             push(line);
