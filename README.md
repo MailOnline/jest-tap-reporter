@@ -15,7 +15,7 @@
 
   - Outputs valid TAP
   - Highlights similar to Jest default reporter, see [Mac](./docs/example-mac.png) and [VS Code](./docs/example-vscode.png) examples
-  - [Highlights line and column of errors](.docs/highlight.png)
+  - [Highlights line and column of errors](./docs/highlight.png)
   - [Shows progress](./docs/progress.png) while running tests
 
 ## Installation
@@ -34,7 +34,7 @@ npm install --dev jest-tap-reporter
 
 ## Usage
 
-#### Add to your jest configuration
+#### Add to your Jest configuration
 
 ```javascript
 {
@@ -44,21 +44,26 @@ npm install --dev jest-tap-reporter
 }
 ```
 
-#### Log levels
+#### Options
 
-By default jest-tap-reporter uses `INFO` log level, which will log the suite path and a summary at the end of a test run.
-If you want to reduce the reporting to bare minimum you can set the `logLevel` parameter to `ERROR`.
+You can add an optional configuration object:
 
 ```javascript
 {
   "reporters": [
-    ["jest-tap-reporter", {"logLevel": "ERROR"}]
+    ["jest-tap-reporter", {
+      "logLevel": "ERROR",
+      "showInternalStackTraces": true
+    }]
   ]
 }
 ```
 
-Available log levels are: `ERROR`, `WARN`, `INFO`.
+Options:
+
+  - `logLevel` - specifies the log level. By default jest-tap-reporter uses `INFO` log level, which will log the suite path and a summary at the end of a test run. If you want to reduce the reporting to bare minimum you can set the `logLevel` parameter to `ERROR`. available log levels are: `ERROR`, `WARN`, `INFO`.
+  - `showInternalStackTraces` - shows stack traces from *"internal"* folders, like `/node_modules` and `/internal`, defaults to `false`.
 
 ## License
 
-MIT, see [LICENSE](./LICENSE).
+[MIT](./LICENSE).

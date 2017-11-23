@@ -19,7 +19,6 @@ class TapReporter {
     this.options = options;
     this[sShouldFail] = false;
     this.writer = new LineWriter(logger, globalConfig.rootDir);
-    this.onAssertionResult = this.onAssertionResult.bind(this);
 
     this.lastAggregatedResults = {};
     this.onRunStartResults = {};
@@ -30,7 +29,11 @@ class TapReporter {
     return path.relative(this.globalConfig.rootDir, filePath);
   }
 
-  onAssertionResult (assertiontResult) {
+  errors (errors) {
+    this.writer.errors(errors, this.options.showInternalStackTraces);
+  }
+
+  onAssertionResult (assertiontResult, isLast) {
     const {ancestorTitles = [], failureMessages, title, status} = assertiontResult;
 
     let formattedTitle = status === STATUS_FAILED ?
@@ -47,11 +50,13 @@ class TapReporter {
       break;
     case STATUS_FAILED:
       this.writer.failed(formattedTitle);
-      this.writer.errors(failureMessages);
+      this.errors(failureMessages);
+      if (!isLast) {
+        this.writer.blank();
+      }
       break;
     case STATUS_PENDING:
       this.writer.skipped(formattedTitle);
-      this.writer.errors(failureMessages);
       break;
     default:
 
@@ -84,9 +89,13 @@ class TapReporter {
 
     // If error in test suite itself.
     if (suiteFailed) {
-      this.writer.errors([testExecError.stack]);
+      this.errors([testExecError.stack], this.options.hideInternalsFromStackTraces);
     } else {
-      testResults.forEach(this.onAssertionResult);
+      const last = testResults.length - 1;
+
+      testResults.forEach((assertionResult, index) => {
+        this.onAssertionResult(assertionResult, index === last);
+      });
     }
 
     this.writer.logger.temporary();

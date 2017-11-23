@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "demo": "jest --testPathPattern 'demo/.+\\.test\\.js' --testRegex 'demo/.+\\.test\\.js'",
+    "demo": "jest --testPathPattern 'demo/.+\\.test\\.js' --testRegex 'demo/.+\\.test\\.js$'",
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
     "precommit": "npm run lint",
     "prepush": "npm test",
@@ -38,7 +38,10 @@
       "index.js"
     ],
     "reporters": [
-      ["./", {"logLevel": "INFO"}]
+      ["./", {
+        "logLevel": "INFO",
+        "showInternalStackTraces": false
+      }]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },

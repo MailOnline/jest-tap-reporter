@@ -174,7 +174,7 @@ class LineWriter {
     return path.relative(this.root, filePath);
   }
 
-  formatFailureMessage (message) {
+  formatFailureMessage (message, showInternalStackTraces) {
     const [firstLine, ...lines] = message.split('\n');
     const outputLines = [];
     let context = '';
@@ -225,7 +225,9 @@ class LineWriter {
 
           // eslint-disable-next-line no-lonely-if
           if (internalsStarted) {
-            pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+            if (showInternalStackTraces) {
+              pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+            }
           } else {
             pushTraceLine(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
 
@@ -244,7 +246,9 @@ class LineWriter {
           if (atPathMatches) {
             const [, atPathPath, atPathRow, atPathColumn] = atPathMatches;
 
-            pushMethod(chalk`at {cyan ${this.getPathRelativeToRoot(atPathPath)}}:{bold ${atPathRow}}:{bold ${atPathColumn}}`);
+            if (!internalsStarted || showInternalStackTraces) {
+              pushMethod(chalk`at {cyan ${this.getPathRelativeToRoot(atPathPath)}}:{bold ${atPathRow}}:{bold ${atPathColumn}}`);
+            }
           } else {
             pushMethod(line);
           }
@@ -279,17 +283,15 @@ class LineWriter {
       }
     }
 
-    push('');
-
     return outputLines.map((line) => formatComment(whitespace + line)).join('\n');
   }
 
-  errors (messages) {
+  errors (messages, showInternalStackTraces) {
     if (!messages.length) {
       return;
     }
 
-    const formattedMessages = messages.map((message) => this.formatFailureMessage(message)).join('\n');
+    const formattedMessages = messages.map((message) => this.formatFailureMessage(message, showInternalStackTraces)).join('\n');
 
     this.logger.error(formattedMessages);
   }
