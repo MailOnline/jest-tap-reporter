@@ -6,28 +6,28 @@
 [npm]: https://www.npmjs.com/package/jest-tap-reporter
 [license-badge]: https://img.shields.io/badge/license-MIT-orange.svg
 [license]: ./LICENSE
+[tap]: https://testanything.org/tap-specification.html
+[jest]: https://facebook.github.io/jest/
 
 [![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] [![License][license-badge]][license]
 
-Jest reporter that outputs valid [TAP](https://testanything.org/tap-specification.html) output and highlights similar to Jest's default reporter.
+[TAP][tap] reporter for [Jest][jest].
 
-
-Mac terminal sample output:
-
-![jest-tap-reporter exaple Mac](./docs/example-mac.png)
-
-VS Code sample output:
-
-![jest-tap-reporter exaple VS Code](./docs/example-vscode.png)
+  - Outputs valid TAP
+  - Highlights similar to Jest default reporter, see [Mac](./docs/example-mac.png) and [VS Code](./docs/example-vscode.png) examples
+  - [Highlights line and column of errors](.docs/highlight.png)
+  - [Shows progress](./docs/progress.png) while running tests
 
 ## Installation
 
 #### yarn
+
 ```shell
 yarn add --dev jest-tap-reporter
 ```
 
 #### npm
+
 ```shell
 npm install --dev jest-tap-reporter
 ```
