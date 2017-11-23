@@ -7,13 +7,11 @@ describe('Logger', () => {
     expect(logger.getLevel()).toBe('INFO');
   });
 
-  /* eslint-disable no-console */
   test('must use process.stdout as a default ouput stream', () => {
     const logger = new Logger();
 
     expect(logger.stream).toBe(process.stdout);
   });
-  /* eslint-enable no-console */
 
   test('must be possible to pass the output stream', () => {
     const stream = {
@@ -144,5 +142,39 @@ describe('Logger', () => {
     expect(write).toHaveBeenCalledWith('test3\n');
 
     expect(write).toHaveBeenCalledTimes(3);
+  });
+
+  describe('.write()', () => {
+    it('must write to the stream', () => {
+      const write = jest.fn();
+      const logger = new Logger({
+        stream: {
+          write
+        }
+      });
+
+      logger.write('lol');
+
+      expect(write).toHaveBeenCalledTimes(1);
+      expect(write).toHaveBeenCalledWith('lol');
+    });
+  });
+
+  describe('.log()', () => {
+    it('must call .write() with extra \\n', () => {
+      const write = jest.fn();
+      const logger = new Logger({
+        stream: {
+          write
+        }
+      });
+
+      logger.write = jest.fn();
+
+      logger.log('foo');
+
+      expect(logger.write).toHaveBeenCalledTimes(1);
+      expect(logger.write).toHaveBeenCalledWith('foo\n');
+    });
   });
 });
