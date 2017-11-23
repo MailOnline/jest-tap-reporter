@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es6",
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "jsx": "preserve"
+  },
+  "exclude": ["node_modules", "lib"]
+}
