@@ -1,7 +1,7 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
 const path = require('path');
 const chalk = require('chalk');
-const Logger = require('./Logger');
+const LoggerTemporal = require('./loggers/LoggerTemporal');
 const LineWriter = require('./LineWriter');
 
 const STATUS_PASSED = 'passed';
@@ -13,13 +13,14 @@ const sShouldFail = Symbol('shouldFail');
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
+    const logger = new LoggerTemporal({logLevel});
 
     this.globalConfig = globalConfig;
     this.options = options;
     this[sShouldFail] = false;
-    this.writer = new LineWriter(new Logger({logLevel}), globalConfig.rootDir);
-    this.onAssertionResult = this.onAssertionResult.bind(this);
+    this.writer = new LineWriter(logger, globalConfig.rootDir);
 
+    this.lastAggregatedResults = {};
     this.onRunStartResults = {};
     this.onRunStartOptions = {};
   }
@@ -28,7 +29,11 @@ class TapReporter {
     return path.relative(this.globalConfig.rootDir, filePath);
   }
 
-  onAssertionResult (assertiontResult) {
+  errors (errors) {
+    this.writer.errors(errors, this.options.showInternalStackTraces);
+  }
+
+  onAssertionResult (assertiontResult, isLast) {
     const {ancestorTitles = [], failureMessages, title, status} = assertiontResult;
 
     let formattedTitle = status === STATUS_FAILED ?
@@ -45,11 +50,13 @@ class TapReporter {
       break;
     case STATUS_FAILED:
       this.writer.failed(formattedTitle);
-      this.writer.errors(failureMessages);
+      this.errors(failureMessages);
+      if (!isLast) {
+        this.writer.blank();
+      }
       break;
     case STATUS_PENDING:
       this.writer.skipped(formattedTitle);
-      this.writer.errors(failureMessages);
       break;
     default:
 
@@ -59,7 +66,17 @@ class TapReporter {
     }
   }
 
-  onTestResult (test, testResult) {
+  onRunStart (results, options) {
+    this.onRunStartOptions = options;
+
+    this.writer.start(results.numTotalTestSuites);
+  }
+
+  onTestResult (test, testResult, aggregatedResults) {
+    this.lastAggregatedResults = aggregatedResults;
+
+    this.writer.logger.buffer();
+
     const {testExecError, testResults, testFilePath, numFailingTests} = testResult;
     const {dir, base} = path.parse(testFilePath);
     const suiteFailed = Boolean(testExecError);
@@ -72,51 +89,47 @@ class TapReporter {
 
     // If error in test suite itself.
     if (suiteFailed) {
-      this.writer.errors([testExecError.stack]);
+      this.errors([testExecError.stack], this.options.hideInternalsFromStackTraces);
     } else {
-      testResults.forEach(this.onAssertionResult);
+      const last = testResults.length - 1;
+
+      testResults.forEach((assertionResult, index) => {
+        this.onAssertionResult(assertionResult, index === last);
+      });
     }
-  }
 
-  onRunStart (results, options) {
-    this.onRunStartOptions = options;
+    this.writer.logger.temporary();
 
-    this.writer.start(results.numTotalTestSuites);
+    this.writer.blank();
+    this.writer.aggregatedResults(aggregatedResults);
+
+    const {estimatedTime} = this.onRunStartOptions;
+
+    if (estimatedTime) {
+      const startTime = aggregatedResults.startTime;
+      const percentage = (Date.now() - startTime) / 1e3 / estimatedTime / 3;
+
+      if (percentage <= 1) {
+        this.writer.blank();
+        this.writer.timeProgressBar(percentage);
+      }
+    }
+
+    this.writer.logger.flush();
   }
 
   onRunComplete (contexts, aggregatedResults) {
     const {estimatedTime} = this.onRunStartOptions;
 
-    const snapshotResults = aggregatedResults.snapshot;
-    const snapshotsAdded = snapshotResults.added;
-    const snapshotsFailed = snapshotResults.unmatched;
-    const snapshotsPassed = snapshotResults.matched;
-    const snapshotsTotal = snapshotResults.total;
-    const snapshotsUpdated = snapshotResults.updated;
     const suitesFailed = aggregatedResults.numFailedTestSuites;
-    const suitesPassed = aggregatedResults.numPassedTestSuites;
-    const suitesPending = aggregatedResults.numPendingTestSuites;
-    const suitesTotal = aggregatedResults.numTotalTestSuites;
     const testsFailed = aggregatedResults.numFailedTests;
-    const testsPassed = aggregatedResults.numPassedTests;
-    const testsPending = aggregatedResults.numPendingTests;
-    const testsTotal = aggregatedResults.numTotalTests;
-    const startTime = aggregatedResults.startTime;
 
     this[sShouldFail] = testsFailed > 0 || suitesFailed > 0;
 
     this.writer.blank();
     this.writer.plan();
     this.writer.blank();
-    this.writer.stats('Test Suites', suitesFailed, suitesPending, suitesPassed, suitesTotal);
-    this.writer.stats('Tests', testsFailed, testsPending, testsPassed, testsTotal);
-    if (snapshotsTotal) {
-      this.writer.snapshots(snapshotsFailed, snapshotsUpdated, snapshotsAdded, snapshotsPassed, snapshotsTotal);
-    }
-
-    const timeValue = `${((Date.now() - startTime) / 1e3).toFixed(3)}s` + (estimatedTime ? `, estimated ${estimatedTime}s` : '');
-
-    this.writer.keyValue('Time', timeValue);
+    this.writer.aggregatedResults(aggregatedResults, estimatedTime);
     this.writer.blank();
     this.writer.commentLight('Ran all test suites.');
     this.writer.blank();

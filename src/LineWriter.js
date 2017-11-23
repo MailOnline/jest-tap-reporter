@@ -1,6 +1,8 @@
 /* eslint-disable complexity, no-use-extend-native/no-use-extend-native */
 const path = require('path');
 const chalk = require('chalk');
+const bar = require('utf8-bar');
+const formatComment = require('./format/formatComment');
 const formatCodeFrame = require('./format/formatCodeFrame');
 const formatStatsBar = require('./format/formatStatsBar');
 const formatFailureMessageTraceLine = require('./format/formatFailureMessageTraceLine');
@@ -28,8 +30,6 @@ const PASS = chalk.supportsColor ?
   chalk`{reset.inverse.bold.green  ${PASS_TEXT} }` :
   ` ${PASS_TEXT} `;
 
-const formatComment = (line) => chalk`{hidden #} ${line}`;
-
 class LineWriter {
   constructor (logger, root) {
     this.counter = 0;
@@ -44,12 +44,16 @@ class LineWriter {
     return this.counter;
   }
 
+  info (line) {
+    this.logger.info(line);
+  }
+
   blank () {
-    this.logger.info('');
+    this.info('');
   }
 
   comment (line) {
-    this.logger.info(formatComment(line));
+    this.info(formatComment(line));
   }
 
   commentBlock (str) {
@@ -95,9 +99,9 @@ class LineWriter {
     const list = [];
 
     if (total) {
-      const bar = formatStatsBar(passed / total, passed + skipped < total);
+      const formattedBar = formatStatsBar(passed / total, Boolean(failed));
 
-      list.push(bar);
+      list.push(formattedBar);
 
       if (failed) {
         list.push(chalk`{red.bold ${failed} failed}`);
@@ -125,9 +129,9 @@ class LineWriter {
     const list = [];
 
     const percent = passed / total;
-    const bar = formatStatsBar(percent, percent < 1 && !updated && !added);
+    const formattedStatsBar = formatStatsBar(percent, percent < 1 && !updated && !added);
 
-    list.push(bar);
+    list.push(formattedStatsBar);
 
     if (failed) {
       list.push(chalk`{red.bold ${failed} failed}`);
@@ -170,7 +174,7 @@ class LineWriter {
     return path.relative(this.root, filePath);
   }
 
-  formatFailureMessage (message) {
+  formatFailureMessage (message, showInternalStackTraces) {
     const [firstLine, ...lines] = message.split('\n');
     const outputLines = [];
     let context = '';
@@ -221,7 +225,9 @@ class LineWriter {
 
           // eslint-disable-next-line no-lonely-if
           if (internalsStarted) {
-            pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+            if (showInternalStackTraces) {
+              pushTraceLineDim(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
+            }
           } else {
             pushTraceLine(formatFailureMessageTraceLine(description, relativeFilePath, row, column));
 
@@ -240,7 +246,9 @@ class LineWriter {
           if (atPathMatches) {
             const [, atPathPath, atPathRow, atPathColumn] = atPathMatches;
 
-            pushMethod(chalk`at {cyan ${this.getPathRelativeToRoot(atPathPath)}}:{bold ${atPathRow}}:{bold ${atPathColumn}}`);
+            if (!internalsStarted || showInternalStackTraces) {
+              pushMethod(chalk`at {cyan ${this.getPathRelativeToRoot(atPathPath)}}:{bold ${atPathRow}}:{bold ${atPathColumn}}`);
+            }
           } else {
             pushMethod(line);
           }
@@ -275,17 +283,15 @@ class LineWriter {
       }
     }
 
-    push('');
-
     return outputLines.map((line) => formatComment(whitespace + line)).join('\n');
   }
 
-  errors (messages) {
+  errors (messages, showInternalStackTraces) {
     if (!messages.length) {
       return;
     }
 
-    const formattedMessages = messages.map((message) => this.formatFailureMessage(message)).join('\n');
+    const formattedMessages = messages.map((message) => this.formatFailureMessage(message, showInternalStackTraces)).join('\n');
 
     this.logger.error(formattedMessages);
   }
@@ -303,6 +309,45 @@ class LineWriter {
 
     this.logger.log(chalk`{reset.inverse 1..${count}}`);
     this.planWritten = true;
+  }
+
+  aggregatedResults (aggregatedResults, estimatedTime) {
+    const snapshotResults = aggregatedResults.snapshot;
+    const snapshotsAdded = snapshotResults.added;
+    const snapshotsFailed = snapshotResults.unmatched;
+    const snapshotsPassed = snapshotResults.matched;
+    const snapshotsTotal = snapshotResults.total;
+    const snapshotsUpdated = snapshotResults.updated;
+    const suitesFailed = aggregatedResults.numFailedTestSuites;
+    const suitesPassed = aggregatedResults.numPassedTestSuites;
+    const suitesPending = aggregatedResults.numPendingTestSuites;
+    const suitesTotal = aggregatedResults.numTotalTestSuites;
+    const testsFailed = aggregatedResults.numFailedTests;
+    const testsPassed = aggregatedResults.numPassedTests;
+    const testsPending = aggregatedResults.numPendingTests;
+    const testsTotal = aggregatedResults.numTotalTests;
+    const startTime = aggregatedResults.startTime;
+
+    this.stats('Test Suites', suitesFailed, suitesPending, suitesPassed, suitesTotal);
+    this.stats('Tests', testsFailed, testsPending, testsPassed, testsTotal);
+    if (snapshotsTotal) {
+      this.snapshots(snapshotsFailed, snapshotsUpdated, snapshotsAdded, snapshotsPassed, snapshotsTotal);
+    }
+
+    const timeValue = `${((Date.now() - startTime) / 1e3).toFixed(3)}s` + (estimatedTime ? `, estimated ${estimatedTime}s` : '');
+
+    this.keyValue('Time', timeValue);
+  }
+
+  timeProgressBar (percentage) {
+    if (percentage > 1) {
+      return;
+    }
+
+    const line = bar(this.logger.stream.columns, percentage);
+    const lineFormatted = chalk`{grey.dim ${line}}`;
+
+    this.logger.write(lineFormatted);
   }
 }
 

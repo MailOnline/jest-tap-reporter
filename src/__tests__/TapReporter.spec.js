@@ -1,15 +1,25 @@
 /* eslint-disable no-console, max-nested-callbacks */
 const chalk = require('chalk');
-const TapReporter = require('../src/TapReporter');
+const TapReporter = require('../TapReporter');
+const LoggerTemporal = require('../loggers/LoggerTemporal');
 const {
   failingTestSuite,
   passingTestSuite,
   severalTestsSuite,
   skippedTestSuite
-} = require('./fixtures');
+} = require('../../test/fixtures');
 
 jest.mock('chalk');
-jest.mock('../src/LineWriter');
+jest.mock('../LineWriter');
+jest.mock('../loggers/LoggerTemporal');
+
+const newTapReporter = () => {
+  const tapReporter = new TapReporter();
+
+  tapReporter.writer.logger = new LoggerTemporal();
+
+  return tapReporter;
+};
 
 describe('TapReporter', () => {
   test('must publish the globalConfig and the options', () => {
@@ -55,7 +65,7 @@ describe('TapReporter', () => {
   describe('onTestResults', () => {
     test('must output error tests', () => {
       chalk.__stripColors();
-      const tapReporter = new TapReporter();
+      const tapReporter = newTapReporter();
 
       tapReporter.onTestResult({}, failingTestSuite);
 
@@ -65,7 +75,7 @@ describe('TapReporter', () => {
 
     test('must output passing tests', () => {
       chalk.__stripColors();
-      const tapReporter = new TapReporter();
+      const tapReporter = newTapReporter();
 
       tapReporter.onTestResult({}, passingTestSuite);
 
@@ -75,7 +85,7 @@ describe('TapReporter', () => {
 
     test('must output skipped tests', () => {
       chalk.__stripColors();
-      const tapReporter = new TapReporter();
+      const tapReporter = newTapReporter();
 
       tapReporter.onTestResult({}, skippedTestSuite);
 
@@ -85,7 +95,7 @@ describe('TapReporter', () => {
 
     test('must output all the tests on a suite tests', () => {
       chalk.__stripColors();
-      const tapReporter = new TapReporter();
+      const tapReporter = newTapReporter();
 
       tapReporter.onTestResult({}, severalTestsSuite);
 
@@ -96,7 +106,7 @@ describe('TapReporter', () => {
 
     describe('suite log', () => {
       test('must output a suite log with the Suites filePath if possible', () => {
-        const tapReporter = new TapReporter();
+        const tapReporter = newTapReporter();
 
         tapReporter.onTestResult({}, passingTestSuite);
 
@@ -107,96 +117,13 @@ describe('TapReporter', () => {
   });
 
   describe('onRunComplete', () => {
-    test('all suites and tests pass', () => {
-      const tapReporter = new TapReporter();
-      const results = {
-        numFailedTests: 0,
-        numFailedTestSuites: 0,
-        numPassedTests: 10,
-        numPassedTestSuites: 2,
-        numPendingTests: 0,
-        numPendingTestSuites: 0,
-        numTotalTests: 10,
-        numTotalTestSuites: 2,
-        snapshot: {},
-        startTime: Date.now() - 2000
-      };
+    test('calls .aggregatedResults() printer', () => {
+      const tapReporter = newTapReporter();
+      const aggregatedResults = {};
 
-      tapReporter.onRunComplete({}, results);
+      tapReporter.onRunComplete({}, aggregatedResults);
 
-      expect(tapReporter.writer.stats.mock.calls).toEqual([
-        ['Test Suites', 0, 0, 2, 2],
-        ['Tests', 0, 0, 10, 10]
-      ]);
-    });
-
-    test('some suites and tests fail', () => {
-      const tapReporter = new TapReporter();
-      const results = {
-        numFailedTests: 1,
-        numFailedTestSuites: 1,
-        numPassedTests: 10,
-        numPassedTestSuites: 2,
-        numPendingTests: 0,
-        numPendingTestSuites: 0,
-        numTotalTests: 10,
-        numTotalTestSuites: 2,
-        snapshot: {},
-        startTime: Date.now() - 2000
-      };
-
-      tapReporter.onRunComplete({}, results);
-
-      expect(tapReporter.writer.stats.mock.calls).toEqual([
-        ['Test Suites', 1, 0, 2, 2],
-        ['Tests', 1, 0, 10, 10]
-      ]);
-    });
-
-    test('1 suite failed to execute', () => {
-      const tapReporter = new TapReporter();
-      const results = {
-        numFailedTests: 0,
-        numFailedTestSuites: 1,
-        numPassedTests: 10,
-        numPassedTestSuites: 1,
-        numPendingTests: 0,
-        numPendingTestSuites: 0,
-        numTotalTests: 10,
-        numTotalTestSuites: 2,
-        snapshot: {},
-        startTime: Date.now() - 2000
-      };
-
-      tapReporter.onRunComplete({}, results);
-
-      expect(tapReporter.writer.stats.mock.calls).toEqual([
-        ['Test Suites', 1, 0, 1, 2],
-        ['Tests', 0, 0, 10, 10]
-      ]);
-    });
-
-    test('some suites and tests skipped', () => {
-      const tapReporter = new TapReporter();
-      const results = {
-        numFailedTests: 0,
-        numFailedTestSuites: 0,
-        numPassedTests: 5,
-        numPassedTestSuites: 1,
-        numPendingTests: 5,
-        numPendingTestSuites: 1,
-        numTotalTests: 10,
-        numTotalTestSuites: 2,
-        snapshot: {},
-        startTime: Date.now() - 2000
-      };
-
-      tapReporter.onRunComplete({}, results);
-
-      expect(tapReporter.writer.stats.mock.calls).toEqual([
-        ['Test Suites', 0, 1, 1, 2],
-        ['Tests', 0, 5, 5, 10]
-      ]);
+      expect(tapReporter.writer.aggregatedResults.mock.calls[0][0]).toBe(aggregatedResults);
     });
   });
 });
