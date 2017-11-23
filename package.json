@@ -2,14 +2,17 @@
   "name": "jest-tap-reporter",
   "version": "0.0.0-semantically-released",
   "description": "Jest TAP reporter",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "modules/index.mjs",
   "scripts": {
     "test": "jest",
     "demo": "jest --testPathPattern 'demo/.+\\.test\\.js' --testRegex 'demo/.+\\.test\\.js$'",
     "lint": "eslint --ignore-path .gitignore '**/*.js'",
     "precommit": "npm run lint",
     "prepush": "npm test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "prebuild": "rimraf ./dist && rimraf ./modules",
+    "build": "rollup -c --environment BUILD:production"
   },
   "author": "MailOnline <fe@mailonline.co.uk>",
   "homepage": "https://github.com/MailOnline/jest-json-to-tap",
@@ -18,15 +21,6 @@
     "url": "git@github.com:MailOnline/jest-tap-reporter.git"
   },
   "license": "MIT",
-  "devDependencies": {
-    "commitizen": "^2.9.5",
-    "eslint": "^4.2.0",
-    "eslint-config-mailonline": "^9.0.0",
-    "husky": "^0.14.3",
-    "jest": "^21.2.1",
-    "mol-conventional-changelog": "^1.2.0",
-    "semantic-release": "^8.2.0"
-  },
   "config": {
     "commitizen": {
       "path": "./node_modules/mol-conventional-changelog"
@@ -50,5 +44,17 @@
     "strip-ansi": "4.0.0",
     "utf8-bar": "0.1.0",
     "@babel/code-frame": "7.0.0-beta.32"
+  },
+  "devDependencies": {
+    "commitizen": "^2.9.5",
+    "eslint": "^4.2.0",
+    "eslint-config-mailonline": "^9.0.0",
+    "husky": "^0.14.3",
+    "jest": "^21.2.1",
+    "mol-conventional-changelog": "^1.2.0",
+    "semantic-release": "^8.2.0",
+    "rollup": "0.51.8",
+    "rollup-plugin-typescript": "0.8.1",
+    "rimraf": "2.6.2"
   }
 }
