@@ -1,3 +1,5 @@
+const formatLog = require('./format/formatLog');
+
 /* eslint-disable sort-keys */
 const LEVELS = {
   ERROR: 1,
@@ -6,13 +8,14 @@ const LEVELS = {
 };
 /* eslint-enable sort-keys */
 
-// eslint-disable-next-line no-console
-const DEFAULT_LOG = console.log;
 const sLevel = Symbol('level');
 
 class Logger {
-  constructor ({log = DEFAULT_LOG, logLevel = 'INFO'} = {}) {
-    this.log = log;
+  constructor ({
+    logLevel = 'INFO',
+    stream = process.stdout
+  } = {}) {
+    this.stream = stream;
     this.setLevel(logLevel);
   }
 
@@ -30,6 +33,14 @@ class Logger {
 
   getLevel () {
     return Object.keys(LEVELS).filter((key) => LEVELS[key] === this[sLevel])[0];
+  }
+
+  write (data) {
+    this.stream.write(data);
+  }
+
+  log (...args) {
+    this.write(formatLog(...args) + '\n');
   }
 
   info (...args) {
