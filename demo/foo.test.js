@@ -15,6 +15,7 @@ test('', () => {
   throw new TypeError('Unknown error occured.');
 });
 
+// eslint-disable-next-line jest/no-disabled-tests
 test('skipped test');
 
 // eslint-disable-next-line jest/no-disabled-tests
