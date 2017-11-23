@@ -1,7 +1,5 @@
 # jest-tap-reporter
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/MailOnline/jest-tap-reporter.svg)](https://greenkeeper.io/)
-
 [travis-badge]: https://api.travis-ci.org/MailOnline/jest-tap-reporter.svg?branch=master
 [travis]: https://travis-ci.org/MailOnline/jest-tap-reporter
 [npm-badge]: https://img.shields.io/npm/v/jest-tap-reporter.svg
@@ -11,7 +9,7 @@
 [tap]: https://testanything.org/tap-specification.html
 [jest]: https://facebook.github.io/jest/
 
-[![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] [![License][license-badge]][license]
+[![jest-tap-reporter on NPM][npm-badge]][npm] [![Travis CI][travis-badge]][travis] [![License][license-badge]][license] [![Greenkeeper badge](https://badges.greenkeeper.io/MailOnline/jest-tap-reporter.svg)](https://greenkeeper.io/)
 
 [TAP][tap] reporter for [Jest][jest].
 
