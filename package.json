@@ -40,7 +40,7 @@
     "reporters": [
       ["./", {"logLevel": "INFO"}]
     ],
-    "testRegex": "test\\/.+\\.(test|spec)\\.jsx?$"
+    "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },
   "dependencies": {
     "chalk": "^2.3.0",

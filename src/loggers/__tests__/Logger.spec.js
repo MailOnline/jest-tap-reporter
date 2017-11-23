@@ -1,4 +1,4 @@
-const Logger = require('../src/Logger');
+const Logger = require('../Logger');
 
 describe('Logger', () => {
   test('must set the INFO as the default level', () => {
@@ -8,21 +8,23 @@ describe('Logger', () => {
   });
 
   /* eslint-disable no-console */
-  test('must use console.log as default log function', () => {
+  test('must use process.stdout as a default ouput stream', () => {
     const logger = new Logger();
 
-    expect(logger.log).toBe(console.log);
+    expect(logger.stream).toBe(process.stdout);
   });
   /* eslint-enable no-console */
 
-  test('must be possible to pass a log function', () => {
-    const log = jest.fn();
-    const logger = new Logger({log});
+  test('must be possible to pass the output stream', () => {
+    const stream = {
+      write: jest.fn()
+    };
+    const logger = new Logger({stream});
 
     logger.log('foo', 'bar');
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledWith('foo', 'bar');
+    expect(stream.write).toHaveBeenCalledTimes(1);
+    expect(stream.write).toHaveBeenCalledWith('foo bar\n');
   });
 
   test('must be possible to pass a default log level', () => {
@@ -53,86 +55,94 @@ describe('Logger', () => {
   });
 
   test('warn log must log no matter the log level', () => {
-    const log = jest.fn();
+    const write = jest.fn();
     const logger = new Logger({
-      log,
-      logLevel: 'INFO'
+      logLevel: 'INFO',
+      stream: {
+        write
+      }
     });
 
     logger.log('INFO');
-    expect(log).toHaveBeenCalledWith('INFO');
+    expect(write).toHaveBeenCalledWith('INFO\n');
 
     logger.setLevel('WARN');
     logger.log('WARN');
-    expect(log).toHaveBeenCalledWith('WARN');
+    expect(write).toHaveBeenCalledWith('WARN\n');
 
     logger.setLevel('ERROR');
     logger.log('ERROR');
-    expect(log).toHaveBeenCalledWith('ERROR');
+    expect(write).toHaveBeenCalledWith('ERROR\n');
 
-    expect(log).toHaveBeenCalledTimes(3);
+    expect(write).toHaveBeenCalledTimes(3);
   });
 
   test('info must log if log level is INFO', () => {
-    const log = jest.fn();
+    const write = jest.fn();
     const logger = new Logger({
-      log,
-      logLevel: 'ERROR'
+      logLevel: 'ERROR',
+      stream: {
+        write
+      }
     });
 
     logger.info('test');
-    expect(log).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
 
     logger.setLevel('WARN');
     logger.info('test');
-    expect(log).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
 
     logger.setLevel('INFO');
     logger.info('test');
-    expect(log).toHaveBeenCalledWith('test');
+    expect(write).toHaveBeenCalledWith('test\n');
 
-    expect(log).toHaveBeenCalledTimes(1);
+    expect(write).toHaveBeenCalledTimes(1);
   });
 
   test('WARN must log if log level is INFO or WARN', () => {
-    const log = jest.fn();
+    const write = jest.fn();
     const logger = new Logger({
-      log,
-      logLevel: 'ERROR'
+      logLevel: 'ERROR',
+      stream: {
+        write
+      }
     });
 
     logger.warn('test');
-    expect(log).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
 
     logger.setLevel('WARN');
     logger.warn('test');
-    expect(log).toHaveBeenCalledWith('test');
+    expect(write).toHaveBeenCalledWith('test\n');
 
     logger.setLevel('INFO');
     logger.warn('test2');
-    expect(log).toHaveBeenCalledWith('test2');
+    expect(write).toHaveBeenCalledWith('test2\n');
 
-    expect(log).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenCalledTimes(2);
   });
 
   test('ERROR must log if log level is INFO or WARN or ERROR', () => {
-    const log = jest.fn();
+    const write = jest.fn();
     const logger = new Logger({
-      log,
-      logLevel: 'ERROR'
+      logLevel: 'ERROR',
+      stream: {
+        write
+      }
     });
 
     logger.error('test');
-    expect(log).toHaveBeenCalledWith('test');
+    expect(write).toHaveBeenCalledWith('test\n');
 
     logger.setLevel('WARN');
     logger.error('test2');
-    expect(log).toHaveBeenCalledWith('test2');
+    expect(write).toHaveBeenCalledWith('test2\n');
 
     logger.setLevel('INFO');
     logger.error('test3');
-    expect(log).toHaveBeenCalledWith('test3');
+    expect(write).toHaveBeenCalledWith('test3\n');
 
-    expect(log).toHaveBeenCalledTimes(3);
+    expect(write).toHaveBeenCalledTimes(3);
   });
 });

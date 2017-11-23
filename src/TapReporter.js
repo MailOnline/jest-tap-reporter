@@ -1,7 +1,7 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
 const path = require('path');
 const chalk = require('chalk');
-const LoggerTemporal = require('./LoggerTemporal');
+const LoggerTemporal = require('./loggers/LoggerTemporal');
 const LineWriter = require('./LineWriter');
 
 const STATUS_PASSED = 'passed';
@@ -13,11 +13,12 @@ const sShouldFail = Symbol('shouldFail');
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
+    const logger = new LoggerTemporal({logLevel});
 
     this.globalConfig = globalConfig;
     this.options = options;
     this[sShouldFail] = false;
-    this.writer = new LineWriter(new LoggerTemporal({logLevel}), globalConfig.rootDir);
+    this.writer = new LineWriter(logger, globalConfig.rootDir);
     this.onAssertionResult = this.onAssertionResult.bind(this);
 
     this.lastAggregatedResults = {};
@@ -64,7 +65,6 @@ class TapReporter {
     this.onRunStartOptions = options;
 
     this.writer.start(results.numTotalTestSuites);
-    this.writer.blank();
   }
 
   onTestResult (test, testResult, aggregatedResults) {

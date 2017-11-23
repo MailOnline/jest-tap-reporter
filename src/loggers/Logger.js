@@ -1,4 +1,4 @@
-const formatLog = require('./format/formatLog');
+const formatLog = require('../format/formatLog');
 
 /* eslint-disable sort-keys */
 const LEVELS = {

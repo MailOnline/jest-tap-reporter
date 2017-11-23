@@ -1,10 +1,10 @@
 /* eslint-disable max-nested-callbacks */
 const chalk = require('chalk');
-const Logger = require('../src/Logger');
-const LineWriter = require('../src/LineWriter');
+const Logger = require('../loggers/Logger');
+const LineWriter = require('../LineWriter');
 
 jest.mock('chalk');
-jest.mock('../src/Logger');
+jest.mock('../loggers/Logger');
 
 const create = (root = '/jest-tap-reporter', logger = new Logger()) => {
   const writer = new LineWriter(logger, root);
@@ -486,6 +486,104 @@ describe('LineWriter', () => {
         expect(writer.logger.log).toHaveBeenCalledTimes(4);
         expect(writer.logger.log.mock.calls[3][0]).toBe('1..3');
       });
+    });
+  });
+
+  describe('.aggregatedResults()', () => {
+    test('all suites and tests pass', () => {
+      const writer = create();
+      const aggregatedResults = {
+        numFailedTests: 0,
+        numFailedTestSuites: 0,
+        numPassedTests: 10,
+        numPassedTestSuites: 2,
+        numPendingTests: 0,
+        numPendingTestSuites: 0,
+        numTotalTests: 10,
+        numTotalTestSuites: 2,
+        snapshot: {},
+        startTime: Date.now() - 2000
+      };
+
+      writer.stats = jest.fn();
+      writer.aggregatedResults(aggregatedResults, 1);
+
+      expect(writer.stats.mock.calls).toEqual([
+        ['Test Suites', 0, 0, 2, 2],
+        ['Tests', 0, 0, 10, 10]
+      ]);
+    });
+
+    test('some suites and tests fail', () => {
+      const writer = create();
+      const aggregatedResults = {
+        numFailedTests: 1,
+        numFailedTestSuites: 1,
+        numPassedTests: 10,
+        numPassedTestSuites: 2,
+        numPendingTests: 0,
+        numPendingTestSuites: 0,
+        numTotalTests: 10,
+        numTotalTestSuites: 2,
+        snapshot: {},
+        startTime: Date.now() - 2000
+      };
+
+      writer.stats = jest.fn();
+      writer.aggregatedResults(aggregatedResults, 1);
+
+      expect(writer.stats.mock.calls).toEqual([
+        ['Test Suites', 1, 0, 2, 2],
+        ['Tests', 1, 0, 10, 10]
+      ]);
+    });
+
+    test('1 suite failed to execute', () => {
+      const writer = create();
+      const aggregatedResults = {
+        numFailedTests: 0,
+        numFailedTestSuites: 1,
+        numPassedTests: 10,
+        numPassedTestSuites: 1,
+        numPendingTests: 0,
+        numPendingTestSuites: 0,
+        numTotalTests: 10,
+        numTotalTestSuites: 2,
+        snapshot: {},
+        startTime: Date.now() - 2000
+      };
+
+      writer.stats = jest.fn();
+      writer.aggregatedResults(aggregatedResults, 1);
+
+      expect(writer.stats.mock.calls).toEqual([
+        ['Test Suites', 1, 0, 1, 2],
+        ['Tests', 0, 0, 10, 10]
+      ]);
+    });
+
+    test('some suites and tests skipped', () => {
+      const writer = create();
+      const aggregatedResults = {
+        numFailedTests: 0,
+        numFailedTestSuites: 0,
+        numPassedTests: 5,
+        numPassedTestSuites: 1,
+        numPendingTests: 5,
+        numPendingTestSuites: 1,
+        numTotalTests: 10,
+        numTotalTestSuites: 2,
+        snapshot: {},
+        startTime: Date.now() - 2000
+      };
+
+      writer.stats = jest.fn();
+      writer.aggregatedResults(aggregatedResults, 1);
+
+      expect(writer.stats.mock.calls).toEqual([
+        ['Test Suites', 0, 1, 1, 2],
+        ['Tests', 0, 5, 5, 10]
+      ]);
     });
   });
 });

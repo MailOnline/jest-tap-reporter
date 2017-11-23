@@ -99,7 +99,7 @@ class LineWriter {
     const list = [];
 
     if (total) {
-      const formattedBar = formatStatsBar(passed / total, passed + skipped < total);
+      const formattedBar = formatStatsBar(passed / total, Boolean(failed));
 
       list.push(formattedBar);
 
