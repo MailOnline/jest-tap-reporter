@@ -38,17 +38,22 @@
       "index.js"
     ],
     "reporters": [
-      ["./", {
-        "logLevel": "INFO",
-        "showInternalStackTraces": false
-      }]
+      [
+        "./",
+        {
+          "logLevel": "INFO",
+          "showInternalStackTraces": false
+        }
+      ]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },
   "dependencies": {
+    "@babel/code-frame": "7.0.0-beta.34",
     "chalk": "^2.3.0",
+    "string.prototype.padend": "^3.0.0",
+    "string.prototype.padstart": "^3.0.0",
     "strip-ansi": "4.0.0",
-    "utf8-bar": "0.1.0",
-    "@babel/code-frame": "7.0.0-beta.34"
+    "utf8-bar": "0.1.0"
   }
 }
