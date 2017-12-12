@@ -40,7 +40,8 @@
     "reporters": [
       ["./", {
         "logLevel": "INFO",
-        "showInternalStackTraces": false
+        "showInternalStackTraces": false,
+        "filePath": "test.tap"
       }]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
