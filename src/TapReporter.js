@@ -1,4 +1,5 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
+const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 const LoggerTemporal = require('./loggers/LoggerTemporal');
@@ -13,7 +14,17 @@ const sShouldFail = Symbol('shouldFail');
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
     const {logLevel = 'INFO'} = options;
-    const logger = new LoggerTemporal({logLevel});
+    let stream = process.stdout;
+
+    if (options.filePath) {
+      stream = fs.createWriteStream(options.filePath);
+      chalk.level = 0;
+    }
+
+    const logger = new LoggerTemporal({
+      logLevel,
+      stream
+    });
 
     this.globalConfig = globalConfig;
     this.options = options;
