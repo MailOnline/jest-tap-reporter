@@ -38,13 +38,11 @@
       "index.js"
     ],
     "reporters": [
-      [
-        "./",
-        {
-          "logLevel": "INFO",
-          "showInternalStackTraces": false
-        }
-      ]
+      ["./", {
+        "logLevel": "INFO",
+        "showInternalStackTraces": false,
+        "filePath": "test.tap"
+      }]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },
