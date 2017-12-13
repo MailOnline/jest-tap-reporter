@@ -9,3 +9,8 @@ after_success:
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
+node_js:
+  - '9'
+  - '8'
+  - '7'
+  - '6'
