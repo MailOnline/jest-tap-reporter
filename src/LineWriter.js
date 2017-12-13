@@ -20,17 +20,6 @@ const REG_DIFFERENCE = /^\s*Difference:/;
 const MDASH = '\u2014';
 const CIRCLE = '●';
 
-const FAIL_TEXT = 'FAIL';
-const PASS_TEXT = 'PASS';
-
-const FAIL = chalk.supportsColor ?
-  chalk`{reset.inverse.bold.red  ${FAIL_TEXT} }` :
-  ` ${FAIL_TEXT} `;
-
-const PASS = chalk.supportsColor ?
-  chalk`{reset.inverse.bold.green  ${PASS_TEXT} }` :
-  ` ${PASS_TEXT} `;
-
 class LineWriter {
   constructor (logger, root) {
     this.counter = 0;
@@ -298,7 +287,7 @@ class LineWriter {
   }
 
   suite (isFail, dir, base) {
-    const label = isFail ? FAIL : PASS;
+    const label = isFail ? chalk`{reset.inverse.bold.red  FAIL }` : chalk`{reset.inverse.bold.green  PASS }`;
 
     this.comment(chalk`${label} {grey ${this.getPathRelativeToRoot(dir)}${path.sep}}{bold ${base}}`);
   }
