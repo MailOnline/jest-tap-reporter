@@ -40,8 +40,7 @@
     "reporters": [
       ["./", {
         "logLevel": "INFO",
-        "showInternalStackTraces": false,
-        "filePath": "/Users/vadimdaleckis/lol.tap"
+        "showInternalStackTraces": false
       }]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
