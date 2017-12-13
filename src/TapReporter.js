@@ -11,12 +11,17 @@ const STATUS_PENDING = 'pending';
 
 const sShouldFail = Symbol('shouldFail');
 
+// eslint-disable-next-line no-process-env
+const isCI = () => Boolean(process.env.CI);
+
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
-    const {logLevel = 'INFO'} = options;
+    this.setOptions(options);
+    const {logLevel, filePath} = this.options;
+
     let stream = process.stdout;
 
-    if (options.filePath) {
+    if (filePath) {
       stream = fs.createWriteStream(options.filePath);
       chalk.level = 0;
     }
@@ -27,13 +32,24 @@ class TapReporter {
     });
 
     this.globalConfig = globalConfig;
-    this.options = options;
     this[sShouldFail] = false;
     this.writer = new LineWriter(logger, globalConfig.rootDir);
 
     this.lastAggregatedResults = {};
     this.onRunStartResults = {};
     this.onRunStartOptions = {};
+  }
+
+  setOptions (options) {
+    this.options = options;
+
+    if (isCI() || this.options.filePath) {
+      this.options.noProgressReporting = true;
+    }
+
+    if (!this.options.logLevel) {
+      this.options.logLevel = 'INFO';
+    }
   }
 
   pathRelativeToRoot (filePath) {
@@ -109,20 +125,22 @@ class TapReporter {
       });
     }
 
-    this.writer.logger.temporary();
+    if (!this.options.noProgressReporting) {
+      this.writer.logger.temporary();
 
-    this.writer.blank();
-    this.writer.aggregatedResults(aggregatedResults);
+      this.writer.blank();
+      this.writer.aggregatedResults(aggregatedResults);
 
-    const {estimatedTime} = this.onRunStartOptions;
+      const {estimatedTime} = this.onRunStartOptions;
 
-    if (estimatedTime) {
-      const startTime = aggregatedResults.startTime;
-      const percentage = (Date.now() - startTime) / 1e3 / estimatedTime / 3;
+      if (estimatedTime) {
+        const startTime = aggregatedResults.startTime;
+        const percentage = (Date.now() - startTime) / 1e3 / estimatedTime / 3;
 
-      if (percentage <= 1) {
-        this.writer.blank();
-        this.writer.timeProgressBar(percentage);
+        if (percentage <= 1) {
+          this.writer.blank();
+          this.writer.timeProgressBar(percentage);
+        }
       }
     }
 
