@@ -69,9 +69,10 @@ You can add an optional configuration object:
 Options:
 
   - `logLevel` - specifies the log level. By default jest-tap-reporter uses `INFO` log level, which will log the suite path and a summary at the end of a test run. If you want to reduce the reporting to bare minimum you can set the `logLevel` parameter to `ERROR`. available log levels are: `ERROR`, `WARN`, `INFO`.
-  - `showInternalStackTraces` - shows stack traces from *"internal"* folders, like `/node_modules` and `/internal`, defaults to `false`.
   - `filePath` - specifies a file to write the results. If not supplied it will use `process.stdout`.
-  - `noProgressReporting` - whether to not show intermediate test result summary while testing is in progress. In general, defaults to `false`. When writing to file or in CI environment, it is set to `true`.
+  - `showHeader` - whether to show starting message on startup, defaults to `true`.
+  - `showInternalStackTraces` - shows stack traces from *"internal"* folders, like `/node_modules` and `/internal`, defaults to `false`.
+  - `showProgress` - whether to not show intermediate test result summary while testing is in progress. In general, defaults to `true`. When writing to file or in CI environment, it is forced to be `false`.
 
 #### Example: writing to file
 

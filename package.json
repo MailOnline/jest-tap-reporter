@@ -39,9 +39,9 @@
     ],
     "reporters": [
       ["./", {
-        "logLevel": "ERROR",
+        "logLevel": "INFO",
         "showInternalStackTraces": false,
-        "filePath": "test.tap"
+        "filePath": "/Users/vadimdaleckis/lol.tap"
       }]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"

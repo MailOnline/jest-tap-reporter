@@ -16,22 +16,14 @@ const isCI = () => Boolean(process.env.CI);
 
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
+    this.globalConfig = globalConfig;
     this.setOptions(options);
-    const {logLevel, filePath} = this.options;
-
-    let stream = process.stdout;
-
-    if (filePath) {
-      stream = fs.createWriteStream(options.filePath);
-      chalk.level = 0;
-    }
 
     const logger = new LoggerTemporal({
-      logLevel,
-      stream
+      logLevel: this.options.logLevel,
+      stream: this.createOutputStream()
     });
 
-    this.globalConfig = globalConfig;
     this[sShouldFail] = false;
     this.writer = new LineWriter(logger, globalConfig.rootDir);
 
@@ -41,14 +33,39 @@ class TapReporter {
   }
 
   setOptions (options) {
-    this.options = options;
-
-    if (isCI() || this.options.filePath) {
-      this.options.noProgressReporting = true;
+    if (!options.showProgress || isCI() || options.filePath) {
+      options.showProgress = false;
+    } else {
+      options.showProgress = true;
     }
 
-    if (!this.options.logLevel) {
-      this.options.logLevel = 'INFO';
+    if (!options.logLevel) {
+      options.logLevel = 'INFO';
+    }
+
+    if (options.filePath) {
+      chalk.level = 0;
+    }
+
+    options.showHeader = options.showHeader === undefined ? true : Boolean(options.showHeader);
+
+    this.options = options;
+  }
+
+  writingToFile () {
+    return Boolean(this.options.filePath);
+  }
+
+  createOutputStream () {
+    const {filePath} = this.options;
+
+    if (filePath) {
+      const {rootDir} = this.globalConfig;
+      const filename = path.isAbsolute(filePath) ? filePath : path.join(rootDir, filePath);
+
+      return fs.createWriteStream(filename);
+    } else {
+      return process.stdout;
     }
   }
 
@@ -96,7 +113,9 @@ class TapReporter {
   onRunStart (results, options) {
     this.onRunStartOptions = options;
 
-    this.writer.start(results.numTotalTestSuites);
+    if (this.options.showHeader) {
+      this.writer.start(results.numTotalTestSuites);
+    }
   }
 
   onTestResult (test, testResult, aggregatedResults) {
@@ -125,7 +144,7 @@ class TapReporter {
       });
     }
 
-    if (!this.options.noProgressReporting) {
+    if (this.options.showProgress) {
       this.writer.logger.temporary();
 
       this.writer.blank();
