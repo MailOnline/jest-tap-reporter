@@ -38,13 +38,10 @@
       "index.js"
     ],
     "reporters": [
-      [
-        "./",
-        {
-          "logLevel": "INFO",
-          "showInternalStackTraces": false
-        }
-      ]
+      ["./", {
+        "logLevel": "INFO",
+        "showInternalStackTraces": false
+      }]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },

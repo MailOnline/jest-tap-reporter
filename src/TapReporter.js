@@ -1,4 +1,5 @@
 /* eslint-disable id-match, class-methods-use-this, no-console */
+const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 const LoggerTemporal = require('./loggers/LoggerTemporal');
@@ -10,19 +11,62 @@ const STATUS_PENDING = 'pending';
 
 const sShouldFail = Symbol('shouldFail');
 
+// eslint-disable-next-line no-process-env
+const isCI = () => Boolean(process.env.CI);
+
 class TapReporter {
   constructor (globalConfig = {}, options = {}) {
-    const {logLevel = 'INFO'} = options;
-    const logger = new LoggerTemporal({logLevel});
-
     this.globalConfig = globalConfig;
-    this.options = options;
+    this.setOptions(options);
+
+    const logger = new LoggerTemporal({
+      logLevel: this.options.logLevel,
+      stream: this.createOutputStream()
+    });
+
     this[sShouldFail] = false;
     this.writer = new LineWriter(logger, globalConfig.rootDir);
 
     this.lastAggregatedResults = {};
     this.onRunStartResults = {};
     this.onRunStartOptions = {};
+  }
+
+  setOptions (options) {
+    if (!options.showProgress || isCI() || options.filePath) {
+      options.showProgress = false;
+    } else {
+      options.showProgress = true;
+    }
+
+    if (!options.logLevel) {
+      options.logLevel = 'INFO';
+    }
+
+    if (options.filePath) {
+      chalk.level = 0;
+    }
+
+    options.showHeader = options.showHeader === undefined ? true : Boolean(options.showHeader);
+
+    this.options = options;
+  }
+
+  writingToFile () {
+    return Boolean(this.options.filePath);
+  }
+
+  createOutputStream () {
+    const {filePath} = this.options;
+
+    if (filePath) {
+      const {rootDir} = this.globalConfig;
+      const filename = path.isAbsolute(filePath) ? filePath : path.join(rootDir, filePath);
+
+      return fs.createWriteStream(filename);
+    } else {
+      return process.stdout;
+    }
   }
 
   pathRelativeToRoot (filePath) {
@@ -69,7 +113,9 @@ class TapReporter {
   onRunStart (results, options) {
     this.onRunStartOptions = options;
 
-    this.writer.start(results.numTotalTestSuites);
+    if (this.options.showHeader) {
+      this.writer.start(results.numTotalTestSuites);
+    }
   }
 
   onTestResult (test, testResult, aggregatedResults) {
@@ -98,20 +144,22 @@ class TapReporter {
       });
     }
 
-    this.writer.logger.temporary();
+    if (this.options.showProgress) {
+      this.writer.logger.temporary();
 
-    this.writer.blank();
-    this.writer.aggregatedResults(aggregatedResults);
+      this.writer.blank();
+      this.writer.aggregatedResults(aggregatedResults);
 
-    const {estimatedTime} = this.onRunStartOptions;
+      const {estimatedTime} = this.onRunStartOptions;
 
-    if (estimatedTime) {
-      const startTime = aggregatedResults.startTime;
-      const percentage = (Date.now() - startTime) / 1e3 / estimatedTime / 3;
+      if (estimatedTime) {
+        const startTime = aggregatedResults.startTime;
+        const percentage = (Date.now() - startTime) / 1e3 / estimatedTime / 3;
 
-      if (percentage <= 1) {
-        this.writer.blank();
-        this.writer.timeProgressBar(percentage);
+        if (percentage <= 1) {
+          this.writer.blank();
+          this.writer.timeProgressBar(percentage);
+        }
       }
     }
 
