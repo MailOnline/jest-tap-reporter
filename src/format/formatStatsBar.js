@@ -1,11 +1,13 @@
 const chalk = require('chalk');
+const padEnd = require('string.prototype.padend');
+const padStart = require('string.prototype.padstart');
 const progressBar = require('../progressBar');
 
 const formatStatsBar = (percent, hasErrors) => {
   let percentFormatted = Math.round(100 * percent) + '%';
 
-  percentFormatted = percentFormatted.padStart(3, ' ');
-  percentFormatted = percentFormatted.padEnd(4, ' ');
+  percentFormatted = padStart(percentFormatted, 3, ' ');
+  percentFormatted = padEnd(percentFormatted, 4, ' ');
 
   const bar = progressBar(percent, hasErrors ? 'red' : 'grey.dim');
 
