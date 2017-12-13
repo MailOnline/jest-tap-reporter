@@ -36,11 +36,15 @@ npm install --dev jest-tap-reporter
 
 #### Add to your Jest configuration
 
+In `package.json` file:
+
 ```javascript
 {
-  "reporters": [
-    "jest-tap-reporter"
-  ]
+  "jest": {
+    "reporters": [
+      "jest-tap-reporter"
+    ]
+  }
 }
 ```
 
@@ -48,15 +52,17 @@ npm install --dev jest-tap-reporter
 
 You can add an optional configuration object:
 
-```javascript
+```js
 {
-  "reporters": [
-    ["jest-tap-reporter", {
-      "logLevel": "ERROR",
-      "showInternalStackTraces": true,
-      "filePath": "filename.tap"
-    }]
-  ]
+  "jest": {
+    "reporters": [
+      ["jest-tap-reporter", {
+        "logLevel": "ERROR",
+        "showInternalStackTraces": true,
+        "filePath": "filename.tap"
+      }]
+    ]
+  }
 }
 ```
 
@@ -66,6 +72,23 @@ Options:
   - `showInternalStackTraces` - shows stack traces from *"internal"* folders, like `/node_modules` and `/internal`, defaults to `false`.
   - `filePath` - specifies a file to write the results. If not supplied it will use `process.stdout`.
   - `noProgressReporting` - whether to not show intermediate test result summary while testing is in progress. In general, defaults to `false`. When writing to file or in CI environment, it is set to `true`.
+
+#### Example: writing to file
+
+You can write test results to a file with the following config:
+
+```js
+{
+  "jest": {
+    "reporters": [
+      ["jest-tap-reporter", {
+        "logLevel": "ERROR",
+        "filePath": "test.tap"
+      }]
+    ],
+  }
+}
+```
 
 ## License
 

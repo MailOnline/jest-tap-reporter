@@ -39,7 +39,7 @@
     ],
     "reporters": [
       ["./", {
-        "logLevel": "INFO",
+        "logLevel": "ERROR",
         "showInternalStackTraces": false,
         "filePath": "test.tap"
       }]
