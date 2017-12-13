@@ -2,6 +2,7 @@
 const path = require('path');
 const chalk = require('chalk');
 const bar = require('utf8-bar');
+const padEnd = require('string.prototype.padend');
 const formatComment = require('./format/formatComment');
 const formatCodeFrame = require('./format/formatCodeFrame');
 const formatStatsBar = require('./format/formatStatsBar');
@@ -80,7 +81,7 @@ class LineWriter {
 
   keyValue (key, value) {
     // eslint-disable-next-line no-use-extend-native/no-use-extend-native
-    const keyFormatted = (key + ':').padEnd(12, ' ');
+    const keyFormatted = padEnd(key + ':', 12, ' ');
 
     this.comment(chalk`{bold ${keyFormatted}} ${value}`);
   }
