@@ -46,7 +46,7 @@
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },
   "dependencies": {
-    "@babel/code-frame": "7.0.0-beta.34",
+    "@babel/code-frame": "7.0.0-beta.35",
     "chalk": "^2.3.0",
     "string.prototype.padend": "^3.0.0",
     "string.prototype.padstart": "^3.0.0",
