@@ -25,7 +25,7 @@
     "husky": "^0.14.3",
     "jest": "^22.0.0",
     "mol-conventional-changelog": "^1.2.0",
-    "semantic-release": "^8.2.0"
+    "semantic-release": "^11.0.2"
   },
   "config": {
     "commitizen": {
