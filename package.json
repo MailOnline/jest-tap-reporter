@@ -23,7 +23,8 @@
     "eslint": "^4.2.0",
     "eslint-config-mailonline": "^9.0.0",
     "husky": "^0.14.3",
-    "jest": "^22.0.0",
+    "jest": "22.0.5",
+    "jest-cli": "22.0.5",
     "mol-conventional-changelog": "^1.2.0",
     "semantic-release": "^11.0.2"
   },
@@ -38,10 +39,13 @@
       "index.js"
     ],
     "reporters": [
-      ["./", {
-        "logLevel": "INFO",
-        "showInternalStackTraces": false
-      }]
+      [
+        "./",
+        {
+          "logLevel": "INFO",
+          "showInternalStackTraces": false
+        }
+      ]
     ],
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },

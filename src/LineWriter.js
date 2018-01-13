@@ -9,7 +9,7 @@ const formatStatsBar = require('./format/formatStatsBar');
 const formatFailureMessageTraceLine = require('./format/formatFailureMessageTraceLine');
 
 const REG_TRACE_LINE = /\s*(.+)\((.+):([0-9]+):([0-9]+)\)$/;
-const REG_INTERNALS = /^(node_modules|internal)\//;
+const REG_INTERNALS = /^(node_modules|internal|(\.\.\/)*\.nvm)\//;
 const REG_AT_PATH = /^\s*at (\/[^:]+):([0-9]+):([0-9]+)\s*$/;
 const REG_AT = /^\s*at/;
 const REG_ERROR = /^\s*Error:\s*/;
