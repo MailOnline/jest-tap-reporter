@@ -84,7 +84,7 @@ class TapReporter {
       chalk`{red ${title}}` :
       chalk`{rgb(80,80,80) ${title}}`;
 
-    formattedTitle = [...ancestorTitles, formattedTitle].join(' › ');
+    formattedTitle = [...ancestorTitles, formattedTitle].join(' › ').replace('#', '';
 
     switch (status) {
     case STATUS_PASSED:
