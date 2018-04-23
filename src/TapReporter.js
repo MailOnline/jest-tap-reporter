@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const mkdirp = require('mkdirp');
 const LoggerTemporal = require('./loggers/LoggerTemporal');
 const LineWriter = require('./LineWriter');
 
@@ -63,6 +64,8 @@ class TapReporter {
       const {rootDir} = this.globalConfig;
       const filename = path.isAbsolute(filePath) ? filePath : path.join(rootDir, filePath);
 
+      mkdirp(path.dirname(filename));
+
       return fs.createWriteStream(filename);
     } else {
       return process.stdout;
@@ -77,8 +80,8 @@ class TapReporter {
     this.writer.errors(errors, this.options.showInternalStackTraces);
   }
 
-  onAssertionResult (assertiontResult, isLast) {
-    const {ancestorTitles = [], failureMessages, title, status} = assertiontResult;
+  onAssertionResult (assertionResult, isLast) {
+    const {ancestorTitles = [], failureMessages, title, status} = assertionResult;
 
     let formattedTitle = status === STATUS_FAILED ?
       chalk`{red ${title}}` :
