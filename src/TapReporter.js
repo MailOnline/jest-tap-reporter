@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const mkdirp = require('mkdirp');
 const LoggerTemporal = require('./loggers/LoggerTemporal');
 const LineWriter = require('./LineWriter');
 
@@ -62,6 +63,8 @@ class TapReporter {
     if (filePath) {
       const {rootDir} = this.globalConfig;
       const filename = path.isAbsolute(filePath) ? filePath : path.join(rootDir, filePath);
+
+      mkdirp(path.dirname(filename));
 
       return fs.createWriteStream(filename);
     } else {

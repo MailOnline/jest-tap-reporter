@@ -52,6 +52,7 @@
   "dependencies": {
     "@babel/code-frame": "7.0.0-beta.36",
     "chalk": "^2.3.0",
+    "mkdirp": "0.5.1",
     "string.prototype.padend": "^3.0.0",
     "string.prototype.padstart": "^3.0.0",
     "strip-ansi": "4.0.0",
