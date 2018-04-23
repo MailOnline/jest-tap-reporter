@@ -80,8 +80,8 @@ class TapReporter {
     this.writer.errors(errors, this.options.showInternalStackTraces);
   }
 
-  onAssertionResult (assertiontResult, isLast) {
-    const {ancestorTitles = [], failureMessages, title, status} = assertiontResult;
+  onAssertionResult (assertionResult, isLast) {
+    const {ancestorTitles = [], failureMessages, title, status} = assertionResult;
 
     let formattedTitle = status === STATUS_FAILED ?
       chalk`{red ${title}}` :
