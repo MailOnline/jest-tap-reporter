@@ -20,13 +20,13 @@
   "license": "MIT",
   "devDependencies": {
     "commitizen": "^2.9.5",
-    "eslint": "^4.2.0",
+    "eslint": "^5.1.0",
     "eslint-config-mailonline": "^9.0.0",
     "husky": "^0.14.3",
-    "jest-cli": "22.4.2",
-    "jest": "22.4.2",
+    "jest-cli": "23.4.1",
+    "jest": "23.4.1",
     "mol-conventional-changelog": "^1.2.0",
-    "semantic-release": "^12.4.0"
+    "semantic-release": "^15.7.2"
   },
   "config": {
     "commitizen": {
@@ -50,7 +50,7 @@
     "testRegex": "(test|src)\\/.+\\.(test|spec)\\.jsx?$"
   },
   "dependencies": {
-    "@babel/code-frame": "7.0.0-beta.36",
+    "@babel/code-frame": "7.0.0-beta.53",
     "chalk": "^2.3.0",
     "string.prototype.padend": "^3.0.0",
     "string.prototype.padstart": "^3.0.0",
