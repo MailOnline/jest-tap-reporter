@@ -19,12 +19,12 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "commitizen": "^2.9.5",
+    "commitizen": "^3.0.1",
     "eslint": "^4.2.0",
     "eslint-config-mailonline": "^9.0.0",
     "husky": "^0.14.3",
-    "jest-cli": "22.4.2",
-    "jest": "22.4.2",
+    "jest-cli": "24.3.0",
+    "jest": "24.0.0",
     "mol-conventional-changelog": "^1.2.0",
     "semantic-release": "^12.4.0"
   },
@@ -54,7 +54,7 @@
     "chalk": "^2.3.0",
     "string.prototype.padend": "^3.0.0",
     "string.prototype.padstart": "^3.0.0",
-    "strip-ansi": "4.0.0",
+    "strip-ansi": "7.0.0",
     "utf8-bar": "0.1.0"
   }
 }
