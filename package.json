@@ -20,11 +20,11 @@
   "license": "MIT",
   "devDependencies": {
     "commitizen": "^2.9.5",
-    "eslint": "^4.2.0",
+    "eslint": "^7.0.0",
     "eslint-config-mailonline": "^9.0.0",
     "husky": "^0.14.3",
-    "jest-cli": "22.4.2",
-    "jest": "22.4.2",
+    "jest-cli": "25.1.0",
+    "jest": "25.0.0",
     "mol-conventional-changelog": "^1.2.0",
     "semantic-release": "^12.4.0"
   },
